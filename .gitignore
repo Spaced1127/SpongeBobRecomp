@@ -1,0 +1,17 @@
+# Game data is never committed
+Game/
+User*/
+*.iso
+*.rvz
+*.wbfs
+*.gcm
+*.dol
+*.gci
+*.state
+*.raw
+*.log
+work/
+build/
+dist/
+.vs/
+__pycache__/
