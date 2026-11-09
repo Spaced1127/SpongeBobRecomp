@@ -5,6 +5,8 @@ Standalone PC port of **SpongeBob SquarePants: Revenge of the Flying Dutchman**
 
 **No game data is included.** You supply your own disc image.
 
+[![Verified developer on RecompStore](https://recompstore.com/assets/press/verified-dark.svg)](https://recompstore.com/dev/spaced1127)
+
 ![Bikini Bottom gameplay](docs/hero-gameplay.jpg)
 
 ## Download
