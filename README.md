@@ -1,92 +1,118 @@
 # SpongeBobRecomp
 
 Standalone PC port of **SpongeBob SquarePants: Revenge of the Flying Dutchman**
-(GameCube, USA, disc ID `GSQE78`) built by static recompilation of the retail
-DOL. This repository hosts the launcher, helper tools and release packages.
+(GameCube, NTSC-U, `GSQE78`), built by static recompilation.
 
-**This repository and the release package contain no game assets.** There is no
-ISO/RVZ, no extracted game folder, no textures, audio or level data. You must
-supply your own original GameCube disc.
+**No game data is included.** You supply your own disc image.
 
-![Launcher](docs/launcher.png)
+![Bikini Bottom gameplay](docs/hero-gameplay.jpg)
 
 ## Download
 
-The current release is **v0.1.1**. Download `SpongeBobRecomp-Release.zip` from
-the [Releases](../../releases) page (about 28 MB), extract it to a writable
-folder and run `SpongeBobRecomp.exe`.
+**[v0.1.1 - latest release](https://github.com/Spaced1127/SpongeBobRecomp/releases/latest)** (about 28 MB)
 
-## Features
-
-- Single launcher application (`SpongeBobRecomp.exe`) plus the game runner and
-  the recompiled game module; no disc content is embedded.
-- Built-in import of **ISO** and **RVZ** images with disc-ID and retail-DOL
-  verification. The extracted game folder is reused between sessions and can be
-  chosen anywhere.
-- Native 60 FPS (PGO + AVX2 module) and an **Unlock frame rate** option.
-- Graphical launcher with PLAY / GRAPHICS / PERFORMANCE / AUDIO / CONTROLLER
-  pages and an animated underwater backdrop drawn procedurally at runtime.
-- Internal resolution 1x-12x (640x528 to 7680x4320), MSAA, SSAA, anisotropic
-  filtering, VSync, aspect ratio, widescreen hack, 2D compatibility (EFB reads).
-- Audio mute and master volume.
-- Fullscreen (no window border), controller profiles, netplay, savestates,
-  memory-card saves. F11 or Alt+Enter toggles fullscreen in-game.
+```text
+SpongeBobRecomp-Release.zip
+SHA-256  02B7EB0A671B8BD3B654893EAA7A9131727456AC7A023CB0F8469C43FA9BAB92
+```
 
 ## Requirements
 
-- Windows 10/11 x64. (The runtime is Dolphin/ModernGekko-derived and portable in
-  principle, but v0.1.1 ships Windows binaries.)
-- A Vulkan-capable GPU (OpenGL is also selectable).
-- Your own original **NTSC-U** copy of the game (disc ID `GSQE78`), as an ISO or
-  RVZ image.
+- Windows 10/11 x64
+- A Vulkan-capable GPU (OpenGL is also available)
+- Your own NTSC-U ISO or RVZ of `GSQE78`
 
 ## Quick start
 
-1. Extract `SpongeBobRecomp-Release.zip` anywhere you can write (not Program
-   Files; the extracted game is written next to the executable).
+1. Extract the zip to a writable folder - not Program Files. The extracted
+   game is written next to the executable.
 2. Run `SpongeBobRecomp.exe`.
-3. On **PLAY**, choose *Browse for ISO / WBFS / RVZ*, pick your disc image, then
-   *Extract and play*. This creates a `Game/` folder beside the executable.
-4. Press **PLAY**. Settings are stored in
-   `%LOCALAPPDATA%\SpongeBobRecomp\config.ini` and save automatically.
+3. On **PLAY**, choose **Browse for ISO / WBFS / RVZ**, select your disc image,
+   then **Extract and play**.
+4. Press **PLAY**.
 
-See `docs/README.txt` for the full settings and troubleshooting reference and
-`docs/PLAYERS.md` for controls.
+The extracted `Game/` folder is reused on later launches. Settings live in
+`%LOCALAPPDATA%\SpongeBobRecomp\config.ini` and save automatically.
 
-## Status (v0.1.1)
+## Screenshots
 
-Verified end to end: ISO and RVZ import (byte-identical retail `main.dol`),
-launcher and settings, legal/title screens, intro and logo movies at full speed
-with clean audio, bedroom intro, pants pickup, bedroom -> living room
-transition, HUD and NPCs, pause menu, Options, Save Game, Load Game and the
-memory card, at ~60 fps.
+| Launcher | Title screen |
+| --- | --- |
+| <img src="docs/hero-launcher.png" width="430" alt="Launcher"> | <img src="docs/hero-title.jpg" width="430" alt="Title screen"> |
+
+## Features
+
+- Static recompilation: the shipped path runs native game code from
+  `gGSQE78_recomp.dll`; no disc data is embedded.
+- ISO and RVZ import with disc-ID and retail-DOL verification.
+- Launcher pages: **PLAY**, **GRAPHICS**, **PERFORMANCE**, **AUDIO**,
+  **CONTROLLER**.
+- Vulkan/OpenGL, 1x-12x internal resolution, MSAA, SSAA, anisotropic
+  filtering, VSync, aspect ratio and widescreen hack.
+- 2D compatibility (EFB reads) on by default for the legal, title and menu
+  screens.
+- Native 60 FPS and an **Unlock frame rate** option.
+- Fullscreen with no window border; **F11** or **Alt+Enter** toggles it.
+- Audio mute and master volume.
+- Controller profiles, netplay, savestates and memory-card saves.
+
+## Status
+
+Tested: ISO/RVZ import, legal and title screens, intro/logo movies at full
+speed with clean audio, bedroom intro, pants pickup, bedroom -> living room
+transition, HUD and NPCs, pause menu, Options, Save Game, Load Game, the
+memory card, fullscreen, and launcher settings.
+
+Still needs a person: a full story playthrough from the main menu to the end.
+Automated input did not cover the main-menu flower-mat interaction, so that
+path and the full game should be verified by playing it.
 
 Known limitations:
 
-- The full story has not been play-tested end to end by a human; the areas
-  above are the tested sections. Automated input did not cover the main menu's
-  flower-mat interaction, so a person should verify that path.
-- In-game (pause menu) volume sliders were not verified; the launcher's mute and
-  master volume are the supported audio controls.
+- In-game pause-menu volume sliders were not verified. Use the launcher's
+  **AUDIO** page for mute and volume.
+- Very high MSAA + SSAA at 4x internal resolution can take a while to compile
+  shaders. Wait for the **Compiling shaders** bar before closing.
+
+## Controls
+
+- **F11 / Alt+Enter** - toggle fullscreen
+- **F1** - save state
+- **Esc** - leave fullscreen; when windowed, closes the game
+- **Space** - hold for fast-forward
+
+Controller mapping is on the launcher's **CONTROLLER** page. See
+[`docs/PLAYERS.md`](docs/PLAYERS.md).
+
+## Graphics settings
+
+Graphics options are applied when you press **PLAY**; they do not change a
+running session. The runner logs the values it applied at startup:
+
+```text
+[video] backend=Vulkan scale=4 msaa=4 ssaa=0 af=4 vsync=1 aspect=1 widescreen=0 fullscreen=1
+```
+
+Logs are in `%LOCALAPPDATA%\SpongeBobRecomp\Logs\ModernGekko.log`. The
+resolution dropdown is Dolphin's internal EFB scale, not the window size.
 
 ## Building
 
-The recompiled module is produced from your own retail DOL with
-[DolRecomp](https://github.com/ExpansionPak/DolRecomp) and the ModernGekko /
-Dolphin-derived runtime. The launcher and runner are C++/CMake programs built
-with MSVC and Clang. Helper scripts used during development are in `tools/`.
+The included module was generated from a retail `main.dol` with DolRecomp and
+the ModernGekko/Dolphin-derived runtime. Rebuilding requires the retail DOL,
+MSVC/Clang, CMake and Ninja; helper scripts are in [`tools/`](tools/).
 
 ## License
 
-The launcher, tools and documentation in this repository are distributed under
-the **GNU General Public License v3.0** (see `COPYING`). The runtime is built
-from Dolphin (GPLv2+, aggregate GPLv3) and DolRecomp (GPLv3); see
-`THIRD_PARTY.md` and `LICENSES-DolRecomp.txt`.
+The launcher, tools and documentation are distributed under the **GNU General
+Public License v3.0** (see [`COPYING`](COPYING)). The runtime is built from
+Dolphin (GPLv2+, aggregate GPLv3) and DolRecomp (GPLv3); see
+[`THIRD_PARTY.md`](THIRD_PARTY.md) and
+[`LICENSES-DolRecomp.txt`](LICENSES-DolRecomp.txt).
 
 ## Legal
 
 SpongeBob SquarePants and Revenge of the Flying Dutchman are trademarks of
 Nickelodeon and their respective owners. This project is not affiliated with or
 endorsed by Nickelodeon, THQ or the original developers. No game data is
-distributed. The recompiled code is intended for use with a disc image you
-legally own.
+distributed; use your own legally owned disc image.
