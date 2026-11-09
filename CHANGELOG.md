@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.1.2 - 2026-11-08
+
+- **RecompLauncher support.** The release ships `recomplauncher.json` at the
+  top of the zip. Level 1 setup uses the player's USA ISO; level 2 exposes the
+  graphics, frame-rate and audio settings; level 3 extracts the disc in a
+  headless prepare step and includes the Redump USA size/CRC-32 for the
+  verified badge.
+- The custom launcher's `--extract` command now prints
+  `progress <0-1> <text>` lines so RecompLauncher can show setup progress.
+- The release asset is named `SpongeBobRecomp-v0.1.2-Windows-x64.zip` so
+  RecompLauncher can identify the Windows x64 build.
+- RecompLauncher starts `SpongeBobRecompRunner.exe` directly and uses the same
+  `config.ini`, saves and logs as the app.
+- The runner auto-detects the first SDL gamepad and generates the same
+  `GCPadNew.ini` profile the custom launcher would, so a fresh install is
+  controller-ready.
+- Still no game data in the package.
+
 ## v0.1.1 - 2026-11-08
 
 Patch release for fullscreen and shutdown.

@@ -11,11 +11,11 @@ Standalone PC port of **SpongeBob SquarePants: Revenge of the Flying Dutchman**
 
 ## Download
 
-**[v0.1.1 - latest release](https://github.com/Spaced1127/SpongeBobRecomp/releases/latest)** (about 28 MB)
+**[v0.1.2 - latest release](https://github.com/Spaced1127/SpongeBobRecomp/releases/latest)** (about 28 MB)
 
 ```text
-SpongeBobRecomp-Release.zip
-SHA-256  02B7EB0A671B8BD3B654893EAA7A9131727456AC7A023CB0F8469C43FA9BAB92
+SpongeBobRecomp-v0.1.2-Windows-x64.zip
+SHA-256  D9C8CE801ACE8C298044C622C20999DB06346802DC3B4287C86E7B21D8A70764
 ```
 
 ## Requirements
@@ -35,6 +35,14 @@ SHA-256  02B7EB0A671B8BD3B654893EAA7A9131727456AC7A023CB0F8469C43FA9BAB92
 
 The extracted `Game/` folder is reused on later launches. Settings live in
 `%LOCALAPPDATA%\SpongeBobRecomp\config.ini` and save automatically.
+
+## RecompLauncher
+
+**Works with [RecompLauncher](https://recomplauncher.com).** Install the release
+from RecompLauncher, pick your USA ISO on its setup screen, and press Play.
+RecompLauncher extracts the disc and starts the game directly; the same
+settings, saves and logs are used. The custom launcher remains available for
+RVZ files and manual imports.
 
 ## Screenshots
 
@@ -57,6 +65,7 @@ The extracted `Game/` folder is reused on later launches. Settings live in
 - Fullscreen with no window border; **F11** or **Alt+Enter** toggles it.
 - Audio mute and master volume.
 - Controller profiles, netplay, savestates and memory-card saves.
+- RecompLauncher setup, settings and verified-disc support.
 
 ## Status
 
