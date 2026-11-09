@@ -12,7 +12,7 @@ supply your own original GameCube disc.
 
 ## Download
 
-The current release is **v0.1.0**. Download `SpongeBobRecomp-Release.zip` from
+The current release is **v0.1.1**. Download `SpongeBobRecomp-Release.zip` from
 the [Releases](../../releases) page (about 28 MB), extract it to a writable
 folder and run `SpongeBobRecomp.exe`.
 
@@ -29,12 +29,13 @@ folder and run `SpongeBobRecomp.exe`.
 - Internal resolution 1x-12x (640x528 to 7680x4320), MSAA, SSAA, anisotropic
   filtering, VSync, aspect ratio, widescreen hack, 2D compatibility (EFB reads).
 - Audio mute and master volume.
-- Fullscreen, controller profiles, netplay, savestates, memory-card saves.
+- Fullscreen (no window border), controller profiles, netplay, savestates,
+  memory-card saves. F11 or Alt+Enter toggles fullscreen in-game.
 
 ## Requirements
 
 - Windows 10/11 x64. (The runtime is Dolphin/ModernGekko-derived and portable in
-  principle, but v0.1.0 ships Windows binaries.)
+  principle, but v0.1.1 ships Windows binaries.)
 - A Vulkan-capable GPU (OpenGL is also selectable).
 - Your own original **NTSC-U** copy of the game (disc ID `GSQE78`), as an ISO or
   RVZ image.
@@ -52,7 +53,7 @@ folder and run `SpongeBobRecomp.exe`.
 See `docs/README.txt` for the full settings and troubleshooting reference and
 `docs/PLAYERS.md` for controls.
 
-## Status (v0.1.0)
+## Status (v0.1.1)
 
 Verified end to end: ISO and RVZ import (byte-identical retail `main.dol`),
 launcher and settings, legal/title screens, intro and logo movies at full speed
