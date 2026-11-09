@@ -122,6 +122,19 @@ custom launcher and RecompLauncher no longer expose the old 150%/200%/unlocked
 options. The cap keeps 60 FPS in the living room; external GPU load can still
 push a maxed-out MSAA/SSAA profile below 60.
 
+## JIT playable path (v0.1.3)
+
+The Bikini Bottom outdoor scene is CPU-bound in the static module. The same
+newest save state gives 42.1 fps / 0.704x at 1080p MSAA 8x and 42.8 fps /
+0.714x at 1x with no AA, so lowering GPU settings does not recover it.
+
+Running that state through Dolphin's JIT core (`MODERNGEKKO_STATICRECOMP=0`)
+gives **59.94 fps / 1.000x** at the same 1080p settings. The launcher and
+RecompLauncher now default to JIT, with the static module selectable as the
+faithful static-recompilation artifact. This is the same split used by the
+Rocket Power: Beach Bandits recomp, whose playable release also runs the JIT
+core while keeping its static module.
+
 ## LLVM backend (not shipped)
 
 DolRecomp's LLVM backend was built against MSYS2 LLVM 23 after adapting the

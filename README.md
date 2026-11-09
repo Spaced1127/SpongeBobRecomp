@@ -1,7 +1,11 @@
 # SpongeBobRecomp
 
 Standalone PC port of **SpongeBob SquarePants: Revenge of the Flying Dutchman**
-(GameCube, NTSC-U, `GSQE78`), built by static recompilation.
+(GameCube, NTSC-U, `GSQE78`).
+
+The playable path uses Dolphin's JIT core at 60 FPS. The DolRecomp static
+recompilation module is included as the static-recompilation artifact and can
+be selected in **PERFORMANCE** (or the RecompLauncher settings).
 
 **No game data is included.** You supply your own disc image.
 
@@ -15,7 +19,7 @@ Standalone PC port of **SpongeBob SquarePants: Revenge of the Flying Dutchman**
 
 ```text
 SpongeBobRecomp-v0.1.3-Windows-x64.zip
-SHA-256  B719F8455A2568D4B8A3DA68F78BEF7D8DB9E10855E6EE0EC8ACBC2140169474
+SHA-256  80F71165773E6333F4370D14A8B3C680D4E8FEED38657C1DA078A15A6AECEE63
 ```
 
 ## Requirements
@@ -44,6 +48,16 @@ RecompLauncher extracts the disc and starts the game directly; the same
 settings, saves and logs are used. The custom launcher remains available for
 RVZ files and manual imports.
 
+## CPU core
+
+- **JIT (default)** - Dolphin's JIT core. Holds 60 FPS, including Bikini
+  Bottom outside SpongeBob's house.
+- **Static recomp** - runs `gGSQE78_recomp.dll`, the static-recompilation
+  build. Faithful, but heavy 3D scenes can dip to around 40 FPS.
+
+Pick it on **PERFORMANCE** in the custom launcher, or under **CPU core** on
+the RecompLauncher game page.
+
 ## Screenshots
 
 | Launcher | Title screen |
@@ -52,8 +66,8 @@ RVZ files and manual imports.
 
 ## Features
 
-- Static recompilation: the shipped path runs native game code from
-  `gGSQE78_recomp.dll`; no disc data is embedded.
+- JIT playable path by default; the static recompilation module
+  `gGSQE78_recomp.dll` is included and selectable. No disc data is embedded.
 - ISO and RVZ import with disc-ID and retail-DOL verification.
 - Launcher pages: **PLAY**, **GRAPHICS**, **PERFORMANCE**, **AUDIO**,
   **CONTROLLER**.

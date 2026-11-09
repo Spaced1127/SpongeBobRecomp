@@ -2,20 +2,28 @@
 
 ## v0.1.3 - 2026-11-09
 
+This release replaces the earlier v0.1.3 static-only build.
+
+- **JIT is the default playable path.** It holds the native 60 FPS in the
+  Bikini Bottom section outside SpongeBob's house, where the static module
+  drops to about 40 FPS. Choose **CPU core** in the custom launcher's
+  PERFORMANCE page or on the RecompLauncher game page. The static module is
+  still included and selectable.
 - **Fixed frame-rate dips in the static recomp.** The game's frame limiter is a
   tight wait loop at `0x800F5F90`. The runtime now skips it with
   `StaticRecompIdlePC` and advances CoreTiming to the next VI/audio event
-  instead of executing millions of host iterations per frame. In the
-  living-room benchmark the recompiled module now reaches the same CPU speed
-  as Dolphin's JIT reference (about 1.21x, up from 1.02x without the skip).
+  instead of executing millions of host iterations per frame. This keeps the
+  static core at 60 FPS in lighter scenes and improves the outdoor scene.
 - **The game is capped at 60 FPS.** The Unlocked, 150% and 200% options are
   removed from the custom launcher and from RecompLauncher. Existing
   `config.ini` files that still contain `emulation_speed=0`, `1.5` or `2` load
   at 60 FPS automatically.
 - **Ships the idle-loop setting** in `Sys/GameSettings/GSQE78.ini` so both the
   custom launcher and RecompLauncher get the fix.
-- RecompLauncher now exposes 12 settings instead of 13; its `always` block
-  keeps `emulation_speed=1`.
+- **Executable icons.** The launcher and runner now embed distinct multi-size
+  icons.
+- RecompLauncher now exposes 13 settings, including **CPU core**; its
+  `config.new` writes `cpu_core=jit`.
 - Still no game data in the package.
 
 ## v0.1.2 - 2026-11-08

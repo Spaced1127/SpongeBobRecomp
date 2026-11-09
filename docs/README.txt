@@ -1,5 +1,5 @@
 SpongeBob SquarePants: Revenge of the Flying Dutchman
-Standalone PC port (static recompilation) - Windows x64
+Standalone PC port (JIT default, static recompilation included) - Windows x64
 ================================================================
 
 This package contains NO game data. There is no disc image, no ROM, no
@@ -68,6 +68,19 @@ The game runs at the console's 60 Hz timing. The old 150% / 200% / unlocked
 options have been removed so the game cannot run faster than 60 fps. Existing
 configuration files are loaded at 60 fps automatically.
 
+CPU CORE
+--------
+PERFORMANCE page -> "Game core".
+
+  * JIT (default) uses Dolphin's JIT core. It holds 60 fps in all tested
+    scenes, including Bikini Bottom outside SpongeBob's house.
+  * Static recomp runs gGSQE78_recomp.dll, the static-recompilation build.
+    It is the faithful static artifact, but heavy 3D scenes can dip to
+    around 40 fps.
+
+Both modes read the same extracted game files. The static module ships in
+this package and can be selected at any time.
+
 AUDIO
 -----
 AUDIO page -> "Mute all audio" silences the game, movies and menu sounds; the
@@ -104,7 +117,7 @@ FILES
 -----
   SpongeBobRecomp.exe          launcher, importer and settings
   SpongeBobRecompRunner.exe    game process
-  gGSQE78_recomp.dll           recompiled game program code (no assets)
+  gGSQE78_recomp.dll           optional static-recomp core (no assets)
   Sys\                         graphics shaders and runtime tables
   LICENSES\                    third-party licenses
   config.ini                   created on first run

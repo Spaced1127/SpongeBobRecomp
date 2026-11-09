@@ -61,11 +61,28 @@
         "efb_access": "true",
         "mute": "false",
         "volume": "100",
-        "emulation_speed": "1"
+        "emulation_speed": "1",
+        "cpu_core": "jit"
       }
     }
   ],
   "settings": [
+    {
+      "id": "core",
+      "label": "CPU core",
+      "in": "args",
+      "help": "JIT runs at the full 60 FPS. Static recomp is the faithful static build but can dip in heavy scenes.",
+      "choices": [
+        {
+          "label": "JIT (60 FPS)",
+          "args": []
+        },
+        {
+          "label": "Static recomp",
+          "args": ["--core", "static"]
+        }
+      ]
+    },
     {
       "id": "window",
       "label": "Window",
