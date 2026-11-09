@@ -63,10 +63,9 @@ memory card, at ~60 fps.
 
 Known limitations:
 
-- The playable main menu (Krusty Krab kitchen) renders and SpongeBob moves, but
-  selecting an option with a flower mat has not worked in automated tests yet.
-- The full story has not been play-tested end to end; the areas above are the
-  tested sections.
+- The full story has not been play-tested end to end by a human; the areas
+  above are the tested sections. Automated input did not cover the main menu's
+  flower-mat interaction, so a person should verify that path.
 - In-game (pause menu) volume sliders were not verified; the launcher's mute and
   master volume are the supported audio controls.
 

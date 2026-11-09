@@ -21,9 +21,10 @@ The standalone PC app runs the real game end to end:
   (`MAIN_AUDIO_MUTED`, volume 0). Unlock-frame-rate toggle on PERFORMANCE.
 - Release: `dist/SpongeBobRecomp-Release.zip`, no game data.
 
-Open issue: the playable main menu (Krusty Krab kitchen) renders, but its
-flower options did not activate in automation; the level-boot path above was
-used to verify the game, pause/save menus work normally.
+Open verification item: automated input did not cover the main menu's
+flower-mat interaction. The game itself is unchanged; levels, pause/save menus
+and the memory card work normally. A human playthrough should exercise the
+menu path and the full story.
 
 Evidence: `work/evidence/20..24-*.png`, `docs/notes/05-test-log.md`,
 `docs/notes/07-performance.md`.
