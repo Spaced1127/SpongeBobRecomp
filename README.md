@@ -11,11 +11,11 @@ Standalone PC port of **SpongeBob SquarePants: Revenge of the Flying Dutchman**
 
 ## Download
 
-**[v0.1.2 - latest release](https://github.com/Spaced1127/SpongeBobRecomp/releases/latest)** (about 28 MB)
+**[v0.1.3 - latest release](https://github.com/Spaced1127/SpongeBobRecomp/releases/latest)** (about 28 MB)
 
 ```text
-SpongeBobRecomp-v0.1.2-Windows-x64.zip
-SHA-256  D9C8CE801ACE8C298044C622C20999DB06346802DC3B4287C86E7B21D8A70764
+SpongeBobRecomp-v0.1.3-Windows-x64.zip
+SHA-256  B719F8455A2568D4B8A3DA68F78BEF7D8DB9E10855E6EE0EC8ACBC2140169474
 ```
 
 ## Requirements
@@ -61,7 +61,8 @@ RVZ files and manual imports.
   filtering, VSync, aspect ratio and widescreen hack.
 - 2D compatibility (EFB reads) on by default for the legal, title and menu
   screens.
-- Native 60 FPS and an **Unlock frame rate** option.
+- Native 60 FPS timing, capped at the console's speed. The old frame-rate
+  uncap option has been removed.
 - Fullscreen with no window border; **F11** or **Alt+Enter** toggles it.
 - Audio mute and master volume.
 - Controller profiles, netplay, savestates and memory-card saves.

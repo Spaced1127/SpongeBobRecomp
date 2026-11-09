@@ -56,17 +56,17 @@ Everything is saved automatically.
   VSync                   on / off
   Aspect ratio            Auto (game native) / 16:9 / 4:3 / Stretch
   Widescreen hack         stretches 3D to the chosen aspect
-  Frame rate              Native 60 / 150% / 200%, or UNLOCK FRAME RATE
+  Frame rate              Fixed 60 (console timing)
   Audio                   Mute all audio, master volume 0-100%
   2D compatibility        EFB access, ON by default
   Show FPS in title       on / off
   Fullscreen, controller profile, netplay host/join
 
-UNLOCK FRAME RATE
------------------
-PERFORMANCE page -> "Unlock frame rate". This removes the 60 fps speed cap so
-3D scenes can run as fast as your machine allows. The game's 60 Hz timing and
-movies are unaffected. Leave it off for the normal, console-accurate 60 fps.
+FRAME RATE
+----------
+The game runs at the console's 60 Hz timing. The old 150% / 200% / unlocked
+options have been removed so the game cannot run faster than 60 fps. Existing
+configuration files are loaded at 60 fps automatically.
 
 AUDIO
 -----

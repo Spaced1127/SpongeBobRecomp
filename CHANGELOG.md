@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.1.3 - 2026-11-09
+
+- **Fixed frame-rate dips in the static recomp.** The game's frame limiter is a
+  tight wait loop at `0x800F5F90`. The runtime now skips it with
+  `StaticRecompIdlePC` and advances CoreTiming to the next VI/audio event
+  instead of executing millions of host iterations per frame. In the
+  living-room benchmark the recompiled module now reaches the same CPU speed
+  as Dolphin's JIT reference (about 1.21x, up from 1.02x without the skip).
+- **The game is capped at 60 FPS.** The Unlocked, 150% and 200% options are
+  removed from the custom launcher and from RecompLauncher. Existing
+  `config.ini` files that still contain `emulation_speed=0`, `1.5` or `2` load
+  at 60 FPS automatically.
+- **Ships the idle-loop setting** in `Sys/GameSettings/GSQE78.ini` so both the
+  custom launcher and RecompLauncher get the fix.
+- RecompLauncher now exposes 12 settings instead of 13; its `always` block
+  keeps `emulation_speed=1`.
+- Still no game data in the package.
+
 ## v0.1.2 - 2026-11-08
 
 - **RecompLauncher support.** The release ships `recomplauncher.json` at the

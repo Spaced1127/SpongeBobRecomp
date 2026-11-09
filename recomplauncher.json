@@ -44,7 +44,8 @@
         "efb_access": "true"
       },
       "always": {
-        "efb_access": "true"
+        "efb_access": "true",
+        "emulation_speed": "1"
       },
       "new": {
         "resolution": "1920x1080",
@@ -137,40 +138,6 @@
       ],
       "defaults": {
         "resolution": "1920x1080"
-      }
-    },
-    {
-      "id": "frame_rate",
-      "label": "Frame rate",
-      "help": "Native is the console's 60 Hz timing. Higher speeds run the game faster; Unlocked removes the cap.",
-      "choices": [
-        {
-          "label": "Native 60",
-          "set": {
-            "emulation_speed": "1"
-          }
-        },
-        {
-          "label": "150%",
-          "set": {
-            "emulation_speed": "1.5"
-          }
-        },
-        {
-          "label": "200%",
-          "set": {
-            "emulation_speed": "2"
-          }
-        },
-        {
-          "label": "Unlocked",
-          "set": {
-            "emulation_speed": "0"
-          }
-        }
-      ],
-      "defaults": {
-        "emulation_speed": "1"
       }
     },
     {

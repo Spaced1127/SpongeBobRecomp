@@ -100,6 +100,28 @@ per audio block: each poll iteration was a chassis round trip.
 The movie still presents at its native ~24 fps (film rate) while the VI runs
 at 60 Hz; that is the content's frame rate, not a slowdown. The debug profile
 confirmed the movie runs at full emulated speed.
+## Frame limiter idle loop (v0.1.3)
+
+The game waits for the next VI/audio event in a tight loop at `0x800F5F90`
+(`lwz r0,-17632(r13); cmplwi r0,0; beq`). It was the hottest block in the PGO
+profile (~8.18 billion iterations), so the recompiled CPU spent most of its
+host time spinning there. `Sys/GameSettings/GSQE78.ini` now sets
+`StaticRecompIdlePC = 0x800F5F90`; when the dispatcher lands there,
+`CoreTiming::Idle()` advances to the next scheduled event instead of running
+the loop.
+
+| Living room, Vulkan, no VSync | Before | After |
+|---|---:|---:|
+| 1080p, MSAA 8x + SSAA | 61.9 fps / 1.038x | **67.7 fps / 1.119x** |
+| 1440p, MSAA 8x + SSAA | - | **64.7 fps / 1.070x** |
+| 1x, no MSAA/SSAA (CPU test) | 61.0 fps / 1.024x | **72.3 fps / 1.207x** |
+
+That matches Dolphin's JIT reference (1.208x). The shipped build caps at 60 FPS:
+`frontend_config.cpp` loads every `emulation_speed` value as `1.0`, and the
+custom launcher and RecompLauncher no longer expose the old 150%/200%/unlocked
+options. The cap keeps 60 FPS in the living room; external GPU load can still
+push a maxed-out MSAA/SSAA profile below 60.
+
 ## LLVM backend (not shipped)
 
 DolRecomp's LLVM backend was built against MSYS2 LLVM 23 after adapting the
