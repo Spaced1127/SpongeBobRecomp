@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.1.4 - 2026-11-09
+
+Fixes the fullscreen ALT+F4 close error.
+
+- Closing a fullscreen session no longer hangs or exits with `0xC0000005`.
+  The runner creates its window windowed, lets the video backend initialize,
+  then applies borderless fullscreen, so the runtime keeps its normal windowed
+  shutdown path. This is the same model the Rocket Power recomp uses.
+- The swap chain now validates the current image index, texture and framebuffer
+  before every present. A failed resize or surface recreation logs and skips
+  the frame instead of dereferencing a null image or opening a modal warning.
+- A single close is enough: if the game does not handle the power-button event,
+  the runner exits after a 3-second grace period instead of requiring a second
+  ALT+F4.
+- F11 / Alt+Enter still toggles fullscreen; windowed mode is unchanged.
+- JIT default, static module optional, 60 FPS cap, 13 RecompLauncher settings,
+  icons and no game data: unchanged.
+
 ## v0.1.3 - 2026-11-09
 
 This release replaces the earlier v0.1.3 static-only build.

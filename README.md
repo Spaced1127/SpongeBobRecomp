@@ -15,11 +15,11 @@ be selected in **PERFORMANCE** (or the RecompLauncher settings).
 
 ## Download
 
-**[v0.1.3 - latest release](https://github.com/Spaced1127/SpongeBobRecomp/releases/latest)** (about 28 MB)
+**[v0.1.4 - latest release](https://github.com/Spaced1127/SpongeBobRecomp/releases/latest)** (about 28 MB)
 
 ```text
-SpongeBobRecomp-v0.1.3-Windows-x64.zip
-SHA-256  80F71165773E6333F4370D14A8B3C680D4E8FEED38657C1DA078A15A6AECEE63
+SpongeBobRecomp-v0.1.4-Windows-x64.zip
+SHA-256  6F22280B185ADC580A048A7DE5B5E80A3236175BE4C3080EAF7A41A69EFAEA37
 ```
 
 ## Requirements

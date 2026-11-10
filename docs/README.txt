@@ -62,6 +62,13 @@ Everything is saved automatically.
   Show FPS in title       on / off
   Fullscreen, controller profile, netplay host/join
 
+FULLSCREEN / SHUTDOWN
+---------------------
+Fullscreen is borderless. The window is created windowed and switches to the
+monitor after the graphics backend is ready, so Alt+F4 closes cleanly. The
+runner waits up to 3 seconds for the game's power-button handler and then
+exits even if the game does not handle it.
+
 FRAME RATE
 ----------
 The game runs at the console's 60 Hz timing. The old 150% / 200% / unlocked
