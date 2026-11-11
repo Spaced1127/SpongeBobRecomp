@@ -10,6 +10,7 @@ be selected in **PERFORMANCE** (or the RecompLauncher settings).
 **No game data is included.** You supply your own disc image.
 
 [![Verified developer on RecompStore](https://recompstore.com/assets/press/verified-dark.svg)](https://recompstore.com/dev/spaced1127)
+[![Get it on RecompLauncher](https://recomplauncher.com/assets/press/launcher/badge-dark.svg)](https://recomplauncher.com/game/spongebobrecomp)
 
 ![Bikini Bottom gameplay](docs/hero-gameplay.jpg)
 
