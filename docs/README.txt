@@ -16,7 +16,8 @@ Dutchman" (USA, disc ID GSQE78), either as:
   * a .iso image (1.36 GiB, clean 1:1 dump), or
   * a .rvz image (Dolphin compressed format).
 
-Both are imported by this app. Other regions and other games are rejected.
+Both are imported directly; no RVZ-to-ISO conversion step is needed. Other
+regions and other games are rejected.
 
 
 QUICK START
@@ -30,6 +31,7 @@ QUICK START
 3. Click "Browse for ISO / WBFS / RVZ", pick your disc image, then click
    "Extract and Play". The disc is extracted once into a "Game" folder beside
    the executable and remembered in default-game.txt.
+   RecompLauncher accepts the same `.iso` or `.rvz` on its setup screen.
 
    If you already extracted the disc elsewhere, click "Browse for extracted
    game folder" and pick the folder that contains "sys" and "files".
@@ -124,12 +126,18 @@ CONTROLLER LAYOUT
 The runner detects Xbox, PlayStation, Switch and generic SDL gamepads and
 applies the matching layout even when RecompLauncher starts it directly.
 Switch uses the printed A/B/X/Y labels; Xbox, PlayStation and generic pads use
-the physical positions. You can override the layout on the RecompLauncher game
-page (Controller) or in config.ini:
+the physical positions. DualSense Edge and Xbox Elite Series 1/2 are detected
+by their SDL GUID and use the standard DualSense/Xbox layout. Their paddles and
+Fn/extra buttons are deliberately not bound. 8BitDo Nintendo-layout pads
+(Pro 2 / Switch mode) are detected from the live SDL a/b mapping and use the
+printed A/B/X/Y labels; Ultimate and 64 stay standard. You can override the
+layout on the RecompLauncher game page (Controller) or in config.ini:
 
   controller_profile=auto|xbox|playstation|switch|generic
 
-Connect the controller before launching.
+Connect the controller before launching. If a pad maps wrongly, send the
+startup line beginning "controller:" with its name, GUID, layout, dpad_swap and
+face_swap values.
 
 
 FILES

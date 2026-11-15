@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.1.6 - 2026-11-15
+
+- Native RVZ input. RecompLauncher's setup screen advertises `.iso or .rvz`
+  and checks `GSQE78` by content with `check.ids`; the launcher and tools read
+  RVZ by its `RVZ\x01` magic with no conversion step.
+- `tools/gcdisc.py` and `tools/verify_dol.py` read RVZ directly;
+  `gcdisc.py extract` writes the same `sys/` + `files/` tree as the app.
+- DualSense Edge (`054c:0df2`) and Xbox Elite Series 1/2 (`045e:02e3`,
+  `0b00`, `0b05`, `0b22`) are detected from the SDL GUID and use the standard
+  DualSense/Xbox layouts. Paddles and Fn/extra buttons are deliberately
+  unbound.
+- Startup diagnostics now print name, GUID, bus, VID/PID, layout, source,
+  D-pad/face swap and paddle/Fn status; standard DualSense, Xbox and Switch
+  pads are regression-tested.
+- 8BitDo Pro 2 in Nintendo/Switch mode is detected from the live SDL `a`/`b`
+  mapping and uses printed A/B/X/Y labels; Ultimate and 64 stay standard.
+  Reversed D-pad bindings are corrected, auto profiles migrate, and manual
+  profiles are preserved.
+
 ## v0.1.5 - 2026-11-14
 
 Completes the fullscreen ALT+F4 close fix and adds controller layouts that

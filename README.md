@@ -16,11 +16,11 @@ be selected in **PERFORMANCE** (or the RecompLauncher settings).
 
 ## Download
 
-**[v0.1.5 - latest release](https://github.com/Spaced1127/SpongeBobRecomp/releases/latest)** (about 28 MB)
+**[v0.1.6 - latest release](https://github.com/Spaced1127/SpongeBobRecomp/releases/latest)** (about 28 MB)
 
 ```text
-SpongeBobRecomp-v0.1.5-Windows-x64.zip
-SHA-256  1A0CEBD909F4D522D1FC376F445EBBD3CC1A63634959432074B28AF759E81F31
+SpongeBobRecomp-v0.1.6-Windows-x64.zip
+SHA-256  581CF8F0E14B80F8C8F429E8D40FF5365742AA3870658FF58E615688DB3B0413
 ```
 
 ## Requirements
@@ -35,7 +35,8 @@ SHA-256  1A0CEBD909F4D522D1FC376F445EBBD3CC1A63634959432074B28AF759E81F31
    game is written next to the executable.
 2. Run `SpongeBobRecomp.exe`.
 3. On **PLAY**, choose **Browse for ISO / WBFS / RVZ**, select your disc image,
-   then **Extract and play**.
+   then **Extract and play**. `.iso` and `.rvz` are both read directly; there
+   is no conversion step.
 4. Press **PLAY**.
 
 The extracted `Game/` folder is reused on later launches. Settings live in
@@ -44,10 +45,10 @@ The extracted `Game/` folder is reused on later launches. Settings live in
 ## RecompLauncher
 
 **Works with [RecompLauncher](https://recomplauncher.com).** Install the release
-from RecompLauncher, pick your USA ISO on its setup screen, and press Play.
-RecompLauncher extracts the disc and starts the game directly; the same
-settings, saves and logs are used. The custom launcher remains available for
-RVZ files and manual imports.
+from RecompLauncher, pick your USA ISO or RVZ on its setup screen, and press
+Play. RecompLauncher extracts the disc and starts the game directly; the same
+settings, saves and logs are used. Both the RecompLauncher setup screen and
+the custom launcher accept `.iso` and `.rvz` directly.
 
 ## CPU core
 
@@ -70,6 +71,10 @@ the RecompLauncher game page.
 - JIT playable path by default; the static recompilation module
   `gGSQE78_recomp.dll` is included and selectable. No disc data is embedded.
 - ISO and RVZ import with disc-ID and retail-DOL verification.
+- GUID-detected DualSense Edge and Xbox Elite Series 1/2; standard layouts,
+  paddles/Fn intentionally unbound.
+- 8BitDo Pro 2 Nintendo/Switch mode detected from live SDL bindings; Ultimate
+  and 64 stay standard; reversed D-pad corrected.
 - Launcher pages: **PLAY**, **GRAPHICS**, **PERFORMANCE**, **AUDIO**,
   **CONTROLLER**.
 - Vulkan/OpenGL, 1x-12x internal resolution, MSAA, SSAA, anisotropic
