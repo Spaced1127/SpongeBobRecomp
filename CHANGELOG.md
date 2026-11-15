@@ -1,5 +1,37 @@
 # Changelog
 
+## v0.1.5 - 2026-11-14
+
+Completes the fullscreen ALT+F4 close fix and adds controller layouts that
+work when RecompLauncher starts the runner directly. Use this instead of
+v0.1.4.
+
+- **Presenter sleep is skipped during shutdown.** The CPU thread could enter a
+  long frame-pacing sleep in `Presenter::Present()` while `CPUManager::Stop()`
+  waited for it to acknowledge `PowerDown`, so a close could still hang.
+  `Present.cpp` now calls `CoreTiming::SleepUntil()` only while
+  `Core::IsRunning()` is true.
+- **8-second shutdown watchdog.** If a Vulkan/shader/driver wait still blocks a
+  processed close, the process exits cleanly instead of staying unresponsive.
+  Normal closes finish in under a second and never reach it.
+- **Fullscreen placement is delayed.** The borderless style change waits about
+  one second after the main loop starts, so the window covers exactly
+  `0,0,2560,1440` instead of keeping its default windowed offset.
+- **Controller layouts are runner-owned.** The runner auto-detects Xbox,
+  PlayStation, Switch and generic SDL pads, writes the matching
+  `GCPadNew.ini`, and uses printed Switch A/B/X/Y labels. `auto` regenerates
+  stale profiles; `manual` preserves a custom launcher selection; the other
+  values force a layout.
+- RecompLauncher now exposes **Controller layout**, bringing the manifest to
+  14 settings.
+- v0.1.4's delayed borderless fullscreen, no destructor fullscreen toggle,
+  swap-chain image validation, non-modal failed-recreation handling and
+  3-second power-button grace remain.
+- Verified 10/10 packaged fullscreen closes at 2560x1440/scale 4/MSAA 8x; no
+  new crash dumps; auto/Switch/stale/manual controller tests pass.
+- No game data; JIT default, static module optional, 60 FPS cap and icons
+  unchanged.
+
 ## v0.1.4 - 2026-11-09
 
 Fixes the fullscreen ALT+F4 close error.

@@ -6,17 +6,23 @@
 |---|---|---|---|---|---|
 | Move | Arrow keys | Left stick / D-pad | Left stick / D-pad | Left stick / D-pad | Left stick / D-pad |
 | Camera | I / J / K / L | C stick | Right stick | Right stick | Right stick |
-| Jump / confirm | Z | A | A | Cross | B |
-| Cancel / attack | X | B | B | Circle | A |
-| Action 1 | A | X | X | Square | Y |
-| Action 2 | S | Y | Y | Triangle | X |
+| Jump / confirm | Z | A | A | Cross | A |
+| Cancel / attack | X | B | B | Circle | B |
+| Action 1 | A | X | X | Square | X |
+| Action 2 | S | Y | Y | Triangle | Y |
 | Pause | Enter | Start | Menu | Options | Plus |
 | Emulator menu | Esc | — | — | — | — |
 | Fullscreen | F11 | — | — | — | — |
 
-The launcher shows the detected controller and lets you pick a profile per
-player. Two players are supported (port 1 and port 2) for the game's
-multiplayer modes. Touch controls are not part of the PC build.
+The runner detects Xbox, PlayStation, Switch and generic SDL pads and applies
+the matching layout even when RecompLauncher starts it directly. Switch uses
+the printed A/B/X/Y labels; Xbox, PlayStation and generic pads use the physical
+positions. You can override the layout on the RecompLauncher game page
+(**Controller**) or in `config.ini` with
+`controller_profile=auto|xbox|playstation|switch|generic`.
+Connect the controller before launching. Two players are supported (port 1 and
+port 2) for the game's multiplayer modes. Touch controls are not part of the PC
+build.
 
 ## Save data
 

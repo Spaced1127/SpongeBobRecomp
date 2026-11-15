@@ -59,8 +59,11 @@ The v0.1.4 model:
 
 1. Create the window **windowed** and let `VideoBackend::Initialize()` create
    the swap chain against that window.
-2. Apply borderless fullscreen on the **first main-loop iteration**, after the
-   video backend is ready. The runtime does not use an exclusive display mode.
+2. Apply borderless fullscreen shortly **after** the main loop starts (about
+   one second in v0.1.5), once Windows has placed the render window. Applying
+   it on the first iteration can leave the window at its default windowed
+   offset because a later placement overwrites the monitor-origin
+   `SetWindowPos`. The runtime does not use an exclusive display mode.
 3. Do not call `ToggleFullscreen()` in `~PlatformWin32()`; destroy the
    borderless window directly.
 4. Validate the current swap-chain image (index, texture, framebuffer) before
@@ -68,6 +71,14 @@ The v0.1.4 model:
    null image or opening a panic dialog.
 5. Give the emulated game 3 seconds to handle the power-button event, then
    force the stop; one close is enough even when the game has no STM hook.
+6. Skip the presenter's frame-pacing sleep while the core is stopping.
+   `Presenter::Present()` must not enter `CoreTiming::SleepUntil()` after
+   `Core::Stop()` has set `Stopping`; `CPUManager::Stop()` is waiting for the
+   CPU thread to acknowledge `PowerDown`. v0.1.5 adds this guard.
+7. Add a last-resort shutdown watchdog (8 seconds in v0.1.5). If a
+   Vulkan/shader/driver wait still blocks a processed close, exit cleanly
+   instead of leaving an unresponsive window. A normal close is under a second
+   and never reaches it.
 
 This is the same approach the Rocket Power recomp uses: fullscreen belongs to
 the window, and the runtime keeps its normal windowed shutdown path.

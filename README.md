@@ -16,11 +16,11 @@ be selected in **PERFORMANCE** (or the RecompLauncher settings).
 
 ## Download
 
-**[v0.1.4 - latest release](https://github.com/Spaced1127/SpongeBobRecomp/releases/latest)** (about 28 MB)
+**[v0.1.5 - latest release](https://github.com/Spaced1127/SpongeBobRecomp/releases/latest)** (about 28 MB)
 
 ```text
-SpongeBobRecomp-v0.1.4-Windows-x64.zip
-SHA-256  6F22280B185ADC580A048A7DE5B5E80A3236175BE4C3080EAF7A41A69EFAEA37
+SpongeBobRecomp-v0.1.5-Windows-x64.zip
+SHA-256  1A0CEBD909F4D522D1FC376F445EBBD3CC1A63634959432074B28AF759E81F31
 ```
 
 ## Requirements
@@ -80,7 +80,8 @@ the RecompLauncher game page.
   uncap option has been removed.
 - Fullscreen with no window border; **F11** or **Alt+Enter** toggles it.
 - Audio mute and master volume.
-- Controller profiles, netplay, savestates and memory-card saves.
+- Controller auto-layouts for Xbox, PlayStation, Switch and generic pads,
+  netplay, savestates and memory-card saves.
 - RecompLauncher setup, settings and verified-disc support.
 
 ## Status
@@ -108,8 +109,11 @@ Known limitations:
 - **Esc** - leave fullscreen; when windowed, closes the game
 - **Space** - hold for fast-forward
 
-Controller mapping is on the launcher's **CONTROLLER** page. See
-[`docs/PLAYERS.md`](docs/PLAYERS.md).
+The runner detects Xbox, PlayStation, Switch and generic pads and maps them
+automatically, including when RecompLauncher starts it directly. Switch uses
+the printed A/B/X/Y labels. RecompLauncher exposes a **Controller layout**
+setting; the custom launcher's **CONTROLLER** page can select a specific
+device. See [`docs/PLAYERS.md`](docs/PLAYERS.md).
 
 ## Graphics settings
 

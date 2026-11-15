@@ -117,7 +117,19 @@ CONTROLS (default)
   F11                     toggle fullscreen
 
 Controllers are auto-detected (Xbox, DualSense, Switch Pro and most SDL
-gamepads). Pads are laid out in the launcher.
+gamepads). The custom launcher's CONTROLLER page can select a specific device.
+
+CONTROLLER LAYOUT
+-----------------
+The runner detects Xbox, PlayStation, Switch and generic SDL gamepads and
+applies the matching layout even when RecompLauncher starts it directly.
+Switch uses the printed A/B/X/Y labels; Xbox, PlayStation and generic pads use
+the physical positions. You can override the layout on the RecompLauncher game
+page (Controller) or in config.ini:
+
+  controller_profile=auto|xbox|playstation|switch|generic
+
+Connect the controller before launching.
 
 
 FILES
