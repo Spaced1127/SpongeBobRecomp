@@ -34,26 +34,36 @@ build.
 DualSense Edge and Xbox Elite Series 1/2 are detected by their SDL GUID and use
 the standard DualSense/Xbox layout. Their paddles and Fn/extra buttons are
 deliberately not bound: use the face buttons, triggers, sticks and D-pad.
+Any Xbox pad reports `layout=xbox` even when its product ID is newer than the
+built-in table, because the vendor word decides the family.
 8BitDo pads in Nintendo layout are detected from the live SDL mapping, not the
 product name: Pro 2 in Nintendo/Switch mode uses the printed A/B/X/Y labels,
-while Ultimate and 64 stay standard. If a pad maps wrongly, send the startup
-line beginning `controller:`; it contains the name, GUID, layout, `dpad_swap`
-and `face_swap` values.
+while Ultimate and 64 stay standard. If a pad maps wrongly, send both startup
+lines: `controller:` (name, GUID, layout, `dpad_swap`, `face_swap`) and
+`controller configuration:` (the `device=` string the runtime looks up plus the
+profile path).
 
 ## Save data
 
-The game uses a folder-based memory card (GCI) created on first launch:
+Slot A is a raw 128 Mbit GameCube memory card (16 MiB, 2043 blocks) created on
+first launch; slot B is empty:
 
 ```
-<app folder>\User\GC\USA\Card A\
+<app folder>\User\GC\MemoryCardA.USA.raw
 ```
 
 If the app folder is read-only, the card lives in
-`%LOCALAPPDATA%\SpongeBobRecomp\GC\USA\Card A`.
+`%LOCALAPPDATA%\SpongeBobRecomp\GC\MemoryCardA.USA.raw`.
 
-To bring saves from an emulator, copy the GCI files from your Dolphin memory
-card into that folder. Card images (`.raw`, `.mcd`, `.ps2`) are not read
-directly by this build.
+Saves made by v0.1.6 and older live as `.gci` files in `GC\USA\Card A\`. The
+first launch of this build imports them into the raw card automatically and
+leaves the `.gci` files in place as a backup, so existing saves keep working.
+If the import cannot complete, the game keeps using the old folder card rather
+than starting empty.
+
+To bring saves from an emulator, add the `.gci` to `GC\USA\Card A\` before the
+first launch of this build (it is imported), or use Dolphin's memory card
+manager to import it into `MemoryCardA.USA.raw`.
 
 ## Save states
 

@@ -1,5 +1,44 @@
 # Changelog
 
+## v0.1.7 - 2026-11-16
+
+Controller hotfix for the v0.1.6 Xbox reports, plus the shared memory-card fix.
+
+- **Raw memory card in slot A, empty slot B.** The runtime now writes
+  `[Core] SlotA = 1` (raw `MemoryCardA.<region>.raw`, 16 MiB) and
+  `SlotB = 255` (None) into `Config/Dolphin.ini` on every launch, after the
+  user-path tree exists and before the EXI devices initialise. Earlier builds
+  left `SlotA` unset, so Dolphin's GCI folder default was used and
+  `Dolphin.ini` was never created.
+- **Existing saves are migrated, not abandoned.** A `.gci` folder card from
+  v0.1.6 or older is imported into the raw card once and the old files are
+  left as a backup; if the import fails the game keeps using the folder card.
+- RecompLauncher's manifest now also writes `Core/SlotA = 1` and
+  `Core/SlotB = 255` for launcher-only installs.
+- Startup line: `memory card: slot A = raw, slot B = none, ...` with the file
+  and byte size or the migration count.
+
+- **Every Xbox pad resolves Xbox.** Detection falls back to the SDL GUID
+  vendor word (`045E` Xbox, `054C` PlayStation, `057E` Nintendo), so a Xbox 360,
+  One, Series or Elite pad is classified correctly even when its product ID is
+  newer than the table (`0B20`, `0B2A`, ...). Reported as
+  `source=guid-family` in the startup line.
+- **The Nintendo layout needs a Nintendo signal.** The `a`-after-`b` mapping
+  rule now requires an 8BitDo vendor, SDL's printed-label hint or a paddle, and
+  never overrides a GUID/Xbox/PlayStation verdict. In v0.1.6 that rule flipped
+  110 of the 797 SDL database rows to printed-label A/B and X/Y — the generic
+  "USB Gamepad", PS2-adapter, Steam virtual-pad and third-party Xbox-shape rows.
+- **Button-order D-pads are no longer inverted.** Only a reversed hat/axis sets
+  the D-pad correction; 34 rows (DualShock 3, PS2 adapters, Steam pads) had
+  left/right swapped.
+- **The generated device matches the runtime.** The runner sets Dolphin's own
+  SDL hints before enumerating, so the `Device = SDL/...` line it writes is the
+  device the runtime creates.
+- Startup diagnostics add the device and profile path to the
+  `controller configuration:` line; the `controller:` line is unchanged.
+- Offline: 130 checks pass (34-row real SDL DB matrix, byte-identical Xbox
+  profile, unknown-PID fallback, non-8BitDo `a>b`, button D-pad).
+
 ## v0.1.6 - 2026-11-15
 
 - Native RVZ input. RecompLauncher's setup screen advertises `.iso or .rvz`

@@ -70,6 +70,27 @@
         "cpu_core": "jit",
         "controller_profile": "auto"
       }
+    },
+    {
+      "id": "dolphin",
+      "format": "ini",
+      "file": [
+        {
+          "path": "{local}/SpongeBobRecomp/Config/Dolphin.ini"
+        }
+      ],
+      "ensure": {
+        "Core/SlotA": "1",
+        "Core/SlotB": "255"
+      },
+      "always": {
+        "Core/SlotA": "1",
+        "Core/SlotB": "255"
+      },
+      "new": {
+        "Core/SlotA": "1",
+        "Core/SlotB": "255"
+      }
     }
   ],
   "settings": [
