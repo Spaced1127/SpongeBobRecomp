@@ -96,7 +96,7 @@ device="SDL/0/Xbox 360 Controller" profile=...\Config\GCPadNew.ini
 - Memory card: fresh user dir creates `MemoryCardA.USA.raw` (16,777,216 bytes,
   SHA-256 `81DF7FED...00DA`) with `SlotA = 1` / `SlotB = 255`; the real v0.1.6
   save `78-GSQE-SpongeBob RFD.gci` is imported (directory entry `GSQE78` /
-  company `78` / `SpongeBob RFD` / 4 blocks, card `DA7AA9CA...77B6`); a second
+  company `78` / `SpongeBob RFD` / 8 blocks, card `DA7AA9CA...77B6`); a second
   launch leaves the card byte-identical.
 - Packaged v0.1.7 runner, hidden desktop: raw card created, keys written,
   `booted=1`, `vps=59.9402`, `speed=1`, clean `stop` shutdown.

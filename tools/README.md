@@ -11,6 +11,10 @@ not contain game data.
 - `rvz_extract.py` - native RVZ reader and optional RVZ-to-ISO export. The app
   and `gcdisc.py` do not need the export; it is only for another tool that
   requires a raw ISO.
+- `card_report.py` - read a SpongeBobRecomp user directory and report the
+  memory card: slot A/B device, raw card size + SHA-256, and every save
+  directory entry (game code, company, file name, blocks). Host-side only;
+  useful in a support report.
 
 The recompiler and runtime are separate upstream projects (DolRecomp,
 ModernGekko/Dolphin); see the main README.

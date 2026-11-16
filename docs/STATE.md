@@ -11,6 +11,28 @@ Updated: 2026-11-16
   disruptive is the user's call to stop, not ours to hide. Everything below
   that says "hidden desktop" describes how the evidence was captured before
   this directive.
+- **GUI/TEST LAUNCHES ARE PAUSED** (hub directive, 2026-11-16, effective now).
+  The user is on the machine. Do not launch the launcher, the runner, a game,
+  or any window, visible or hidden, and do not start a test cycle until the hub
+  lifts the pause. Host-side work only: code, analysis, builds that produce no
+  window, docs. Verified at pause time: no SpongeBob/Rocket Power/ModernGekko
+  process was left running by this session.
+
+### Blocked next actions (need the pause lifted)
+
+1. **In-game memory card round trip** (v0.1.7, ~2 minutes):
+   launch `dist/SpongeBobRecomp-Release-v0.1.7/SpongeBobRecompRunner.exe`
+   (or the installed app), check the log line
+   `memory card: slot A = raw, slot B = none, ...`; Options -> Save Game to a
+   new slot; close the game normally (not task manager); relaunch;
+   Options -> Load Game -> slot A must list and load the save. Report the
+   `MemoryCardA.USA.raw` size (16,777,216) and, if it fails, the card SHA-256.
+2. **Hardware pad confirmation** for the v0.1.7 controller fix: Xbox 360 /
+   One / Series, Elite S1/S2, DualSense, DualSense Edge, 8BitDo Pro 2
+   (Nintendo + standard), Ultimate, 64, Switch Pro. Collect the
+   `controller:` and `controller configuration:` lines from any that misbehave.
+3. Re-run `moderngekko_controller_layout_test.exe` (console only, no window) if
+   the shared tree changes again before the next release.
 
 ## Latest verified result
 
@@ -343,7 +365,7 @@ Verified (hidden desktop / headless, this host):
 | Case | Result |
 |---|---|
 | fresh user dir | `created MemoryCardA.USA.raw bytes=16777216`, SHA-256 `81DF7FED...00DA`, `GC/USA` + `EUR` + `JAP` exist, `[Core] SlotA = 1 / SlotB = 255` |
-| legacy folder card (`dist/SpongeBobRecomp/UserSave` copy, real `78-GSQE-SpongeBob RFD.gci`) | `migrated 1 save(s)`, card `DA7AA9CA...77B6`, directory entry at `0x4000`: `GSQE78` / company `78` / `SpongeBob RFD` / 4 blocks; `.gci` kept |
+| legacy folder card (`dist/SpongeBobRecomp/UserSave` copy, real `78-GSQE-SpongeBob RFD.gci`) | `migrated 1 save(s)`, card `DA7AA9CA...77B6`, directory entry at `0x4000`: `GSQE78` / company `78` / `SpongeBob RFD` / 8 blocks; `.gci` kept |
 | second launch | card SHA unchanged (`DA7AA9CA...77B6`), no re-import, keys intact |
 | packaged v0.1.7, fresh dir, hidden desktop, 20 s | raw card 16,777,216 bytes, keys written |
 
@@ -356,6 +378,13 @@ Test caveats from the pattern doc apply: savestates restore the EXI device type,
 so a state made while slot A was the GCI folder re-enables the folder device;
 the automation `stop` command must be used instead of a force-kill, because a
 force-kill skips the card flush.
+
+Support tool: `python tools\card_report.py "<user dir>"` (also published in the
+repo as `tools/card_report.py`) prints the SlotA/SlotB device, the raw card
+size and SHA-256, and every save directory entry. It is read-only and launches
+nothing. Current fixtures report `slot A = 1`, `slot B = 255`, card
+16,777,216 bytes, entry `GSQE`/`78`/`SpongeBob RFD`/8 blocks, and the legacy
+`.gci` still present.
 
 ## Goal
 
