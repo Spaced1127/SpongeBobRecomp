@@ -1,13 +1,25 @@
 # Project state
 
-Updated: 2026-11-08
+Updated: 2026-11-16
+
+## Working rules in force
+
+- **Quiet mode is LIFTED** (user directive, 2026-11-16). Do not use
+  `H:\Orchestration\tools\run-hidden.ps1`; launch test apps normally with
+  visible windows. Do not minimise, move, hide or kill test-app windows, and do
+  not re-introduce window-suppression scripts or daemons. A run that is
+  disruptive is the user's call to stop, not ours to hide. Everything below
+  that says "hidden desktop" describes how the evidence was captured before
+  this directive.
 
 ## Latest verified result
 
 The standalone PC app runs the real game end to end:
 
 - Asset-free launcher, runner and recompiled module (no disc data).
-- Built-in ISO and RVZ import; extracted `main.dol` is byte-identical.
+- Built-in ISO and RVZ import; RVZ is read natively, and ISO/RVZ extraction
+  produces the same 343-file tree (`78BD825A...59B6`) and `main.dol`
+  (`dca4f72b...e009`).
 - Actual levels load: bedroom intro with dialogue, pants pickup, bedroom ->
   living room transition, full HUD, Gary NPC, all at ~60 fps.
 - Pause menu, Options, Save Game, Load Game and the memory card all work:
@@ -28,6 +40,322 @@ menu path and the full story.
 
 Evidence: `work/evidence/20..24-*.png`, `docs/notes/05-test-log.md`,
 `docs/notes/07-performance.md`.
+
+## Fullscreen close fix (2026-11-09)
+
+Closing a fullscreen session with ALT+F4 could hang and then exit with
+`0xC0000005` (access violation). It was not the v0.1.1 window-proc config bug;
+that one was `0xC000041D` and remains fixed.
+
+Crash evidence from WER and minidumps (`SpongeBobRecompRunner.exe.223320.dmp`
+and `.226984.dmp`):
+
+- Faulting module: `SpongeBobRecompRunner.exe`, RVA `0x2ffd00`.
+- Instruction: `mov dword ptr [rcx+0x40], edx` with `rcx = 0`; exception
+  information `[1, 0x40]` (write to address `0x40`).
+- Thread: `CPU-GPU thread` (single-core mode).
+- Stack: `VKGfx::BindBackbuffer` -> `Presenter::Present` -> `ViSwap` ->
+  `Video_OutputXFB` -> `VideoInterface::OutputField`/`Update`.
+- The null pointer was `SwapChain::m_swap_chain_images[index].texture`: a
+  swap-chain recreation had cleared the images, but
+  `SwapChain::IsCurrentImageValid()` still returned true. The subsequent
+  present wrote through the null texture.
+
+A failed `RecreateSwapChain()` also called `PanicAlertFmt("Failed to
+re-configure swap chain images, this is fatal (for now)")`. During a close that
+opened a modal "Warning" dialog (confirmed by enumerating the process windows),
+so the process sat in a hidden message box instead of exiting.
+
+Fix (ModernGekko/Dolphin runtime):
+
+- `PlatformWin32::Init()` creates the window windowed and defers fullscreen to
+  the first `MainLoop` iteration, after `VideoBackend::Initialize()`. The
+  window is borderless fullscreen, not an exclusive display mode.
+- `~PlatformWin32()` no longer calls `ToggleFullscreen()` before
+  `DestroyWindow()`. Destroying the borderless window directly avoids the
+  `WM_SIZE` -> swap-chain recreation during teardown.
+- `SwapChain::IsCurrentImageValid()` now checks the image index, texture and
+  framebuffer; the current-image getters return null/`VK_NULL_HANDLE` when
+  invalid; `DestroySwapChainImages()` clears the validity flag; and
+  `AcquireNextImage()` refuses a null swap chain.
+- `VKGfx::BindBackbuffer()` caches and checks the current texture/framebuffer
+  before use. `CheckForSurfaceResize()`/`CheckForSurfaceChange()` honor a
+  failed recreation.
+- Swap-chain recreation failures now log an error and skip the frame instead
+  of opening a blocking panic dialog.
+- `Platform::UpdateRunningFlag()` gives the game 3 seconds to honor the
+  power-button event, then clears `m_running`; one close is enough even when
+  the game does not install the STM event hook.
+
+This is the same principle as the Rocket Power recomp: do not let the runtime's
+built-in fullscreen teardown own the window-close path.
+
+The first v0.1.4 build still intermittently hung on close. The CPU thread could
+enter a long frame-pacing sleep in `Presenter::Present` while `CPU::Stop` was
+waiting for it to acknowledge `PowerDown`. `Present.cpp` now skips
+`CoreTiming::SleepUntil()` when `Core::IsRunning()` is false. An 8-second
+shutdown watchdog also force-exits if a Vulkan/shader/driver wait blocks a
+processed close. Stress test: 10/10 packaged fullscreen closes, 0.5-0.8 s each,
+no new crash dumps. The v0.1.5 release contains this final fix.
+
+Verified with the patched runner at 2560x1440, scale=4, MSAA 8x, widescreen,
+Vulkan, JIT:
+
+| Scenario | Result |
+|---|---|
+| Fullscreen startup, one close | window `0,0,2560,1440`; clean exit |
+| Fullscreen + loaded gameplay state, one close | clean exit |
+| F11 leave -> F11 re-enter -> close | `182,182,1738,1116` -> `0,0,2560,1440`; clean exit |
+| Windowed close | clean exit |
+| Fullscreen double-close | clean exit |
+| New crash dumps | none |
+
+## Controller layouts (2026-11-14)
+
+RecompLauncher starts the runner directly and never opens the custom launcher,
+so controller selection cannot live only in the launcher UI. The runner now
+owns it:
+
+- The runner enumerates SDL gamepads at startup, reads
+  `SDL_GetGamepadTypeForID` (with a product-name fallback) and writes
+  `GCPadNew.ini` with the Xbox, PlayStation, Switch or generic layout.
+- Switch uses the printed A/B/X/Y labels (`Button B`, `Button A`, `Button Y`,
+  `Button X` in the profile); Xbox, PlayStation and generic use physical
+  positions.
+- `controller_profile=auto` regenerates the profile on every launch, replacing
+  a stale device or positional layout. `manual` preserves a custom launcher
+  selection. `xbox`, `playstation`, `switch` and `generic` force a layout.
+- The custom launcher's controller page detects the selected pad's type,
+  writes the matching layout and sets `controller_profile=manual`.
+- RecompLauncher's manifest now has 14 settings, including **Controller
+  layout** (Auto-detect / Xbox / PlayStation / Switch / Generic).
+- Controller enumeration initializes only `SDL_INIT_GAMEPAD|SDL_INIT_JOYSTICK`;
+  initializing SDL video before the platform window changed the window
+  geometry and left the fullscreen window offset.
+- Fullscreen placement now waits about one second after the main loop starts,
+  so the borderless window lands at `0,0,2560,1440` instead of keeping the
+  default windowed offset.
+
+Verified on the packaged v0.1.5 build:
+
+- Auto with the connected Xbox pad: `Device = SDL/0/Xbox One Controller`,
+  `(xbox layout)`.
+- Explicit `switch`: `Buttons/A=Button B`, `B=Button A`, `X=Button Y`,
+  `Y=Button X`.
+- Stale `auto` profile: Old Pad replaced with the connected device and layout.
+- `manual`: existing profile preserved.
+- Packaged fullscreen: `0,0,2560,1440`, fullscreen style, menu removed, clean
+  close.
+
+v0.1.5 asset: `SpongeBobRecomp-v0.1.5-Windows-x64.zip`, 28,803,228 bytes,
+SHA-256 `1A0CEBD909F4D522D1FC376F445EBBD3CC1A63634959432074B28AF759E81F31`.
+
+Published 2026-11-15 as the latest GitHub release:
+<https://github.com/Spaced1127/SpongeBobRecomp/releases/tag/v0.1.5>
+Release commit `d1634a5` (main), guide commit `ec95be6`. Download-back hash,
+14-setting manifest and no-game-data scan all verified.
+
+## Native RVZ (2026-11-15)
+
+Players can use a Dolphin `.rvz` directly; no RVZ→ISO step. RVZ is detected
+by magic `RVZ\x01`, and `tools/rvz_extract.py` exposes a random-access ISO view
+that decompresses zstd groups on demand. `tools/gcdisc.py` and
+`tools/verify_dol.py` use it; the custom launcher and RecompLauncher path use
+Dolphin DiscIO.
+
+Evidence with the project RVZ (`974260E4...B06E80`, 489,157,208 bytes):
+
+- RVZ → ISO export: ISO SHA-256
+  `FFDEB4FD370CB357A5F110D3E77C3E8BE7DB5A395818480C4308A1B820039A5D`,
+  identical to `work/disc/game.iso`.
+- Launcher `--extract` ISO vs RVZ: 343 files, 604,947,746 bytes, tree SHA-256
+  `78BD825AF9DD03818984D7E06F945C40DB949AEAB369039FF5A4C62BD37159B6`
+  identical.
+- `gcdisc.py extract` ISO vs RVZ: same tree hash; 338 FST files plus 5
+  system files.
+- `sys/main.dol`
+  `DCA4F72B57E8BF3F540E694F01CC23EF687D2B25028D974B67356E15F1C2E009`;
+  `sys/fst.bin`
+  `A957E4F067711256F9C7161256CCD7E02BD2ED201C5C656736CE79894DFDF529`.
+- RecompLauncher manifest: `check.ids ["GSQE78"]`, label `.iso or .rvz`,
+  14 settings, valid against the live schema.
+- RecompLauncher source confirms the gate: `profile.rs` accepts a compressed
+  image only when `game.label` names `.rvz`, and `roms.rs` reads the GameCube
+  ID from RVZ offset 0x58. The project RVZ returns `GSQE78` at that offset.
+
+Deployment note: the published v0.1.5 zip still carries the old `.iso`-only
+manifest. RecompLauncher installs from that zip, so the v0.1.6 release carries
+this manifest; the repo-root manifest is also updated.
+
+Published 2026-11-15 as v0.1.6 (latest):
+<https://github.com/Spaced1127/SpongeBobRecomp/releases/tag/v0.1.6>
+Asset: `SpongeBobRecomp-v0.1.6-Windows-x64.zip`, 28,810,819 bytes, SHA-256
+`581CF8F0E14B80F8C8F429E8D40FF5365742AA3870658FF58E615688DB3B0413`.
+Release commit `29fae2d`, guide commit `320b5c8`. Download-back hash,
+14-setting manifest, no-game-data scan and packaged boot smoke (`booted=1`)
+verified. v0.1.5 is superseded.
+
+## Special controllers (2026-11-15)
+
+GUID-first detection lives in `tools/controller_guid.hpp` and
+`tools/controller_layout.hpp`. The table keys on SDL standard-form VID/PID, not
+product names, so USB, Bluetooth and XInput variants resolve the same way.
+
+| Family | VID:PID | Layout | Extra buttons |
+|---|---|---|---|
+| DualSense Edge | `054c:0df2` | PlayStation | paddles/Fn unbound |
+| Xbox Elite Series 1 | `045e:02e3` | Xbox | paddles unbound |
+| Xbox Elite Series 2 | `045e:0b00`, `0b05`, `0b22` | Xbox | paddles unbound |
+| 8BitDo Pro 2 (Nintendo/Switch mode) | live SDL `a`/`b` mapping | Switch | paddles unbound |
+| 8BitDo Ultimate / 64 | live SDL `a`/`b` mapping | standard | - |
+
+- Standard DualSense (`054c:0ce6`), DualShock 4/3, Xbox 360/One/Series and
+  Switch Pro/Joy-Con stay in the table. SDL's database-backed type is the
+  fallback; there is no product-name matching.
+- Edge/Elite use the same `ControllerLayout` as a standard DualSense/Xbox pad,
+  so `GenerateControllerConfig` emits the same `GCPadNew.ini` bindings.
+- Live SDL mappings are read with `SDL_GetGamepadMappingForID`. A Nintendo-style
+  mapping (`a` button index > `b`) selects the printed-label Switch layout;
+  `Ultimate` and `64` report `a:b0,b:b1` and stay standard. A reversed D-pad
+  (`dpleft` index > `dpright`, or reversed hat/axis) sets `dpad_swap`, and the
+  generated profile writes corrected `D-Pad/Left`/`D-Pad/Right`.
+- Startup line for support:
+  `controller: "<name>" guid=<32 hex> bus=<...> vid=<...> pid=<...>
+  layout=<...> source=<guid|mapping|type> dpad_swap=<yes|no>
+  face_swap=<yes|no> [paddles=unbound] [extras=unbound] [family="..."]`
+- Offline test `moderngekko_controller_layout_test.exe`: 62 PASS, 0 FAIL.
+  Covers Edge USB/Bluetooth, Elite 02E3/0B00/0B05/0B22, all four 8BitDo Pro 2
+  Nintendo GUIDs, Pro 2 Switch-mode, Ultimate/64 standard, a synthetic reversed
+  D-pad, profile migration/custom preservation and standard-pad regression.
+- SDL DB evidence `work/verify-controller/check_sdl_db.py`: Edge USB/BT
+  standard actions equal standard DualSense; Elite USB/BT have every standard
+  Xbox action. 8BitDo Pro 2 Nintendo entries report `a:b1,b:b0`; Ultimate/64
+  report `a:b0,b:b1`.
+- Hardware confirmation is unavailable here (the current host reports 0 SDL
+  gamepads). Players should confirm face buttons, both sticks, triggers,
+  shoulders, D-pad and Start; send the `controller:` line if anything is wrong.
+
+## Controller hotfix, Xbox reports (2026-11-16)
+
+Players on v0.1.6 reported Xbox pads not working. The detection/generation walk
+against the vendored SDL DB found no Microsoft row that changed layout: every
+Xbox 360/One/Series/Elite GUID still resolves `xbox` and the generated
+`GCPadNew.ini` is **byte-identical** to the v0.1.5/v0.1.6 profile. What broke
+were two live-mapping heuristics that v0.1.6 applied to **every** pad and to
+pads the GUID table does not cover:
+
+- `a` index > `b` index selected the Switch layout unconditionally, even over a
+  GUID or SDL-type verdict. Of the 797 vendored DB rows, 110 became "Switch"
+  (printed-label A/B and X/Y swapped) — the "USB Gamepad", PS2-adapter, Steam
+  virtual-pad and third-party Xbox-shape rows that Windows and Steam present in
+  place of a plain Xbox pad.
+- `dpleft` index > `dpright` set `dpad_swap` for button-order D-pads that SDL
+  already had right (DualShock 3, PS2 adapters, Steam pads): 34 rows got an
+  inverted D-pad.
+- A Microsoft PID missing from the table (`0B20`, `0B2A`, `0B30`, ...) had no
+  fallback, so it depended on those heuristics.
+
+Fix (`controller_layout.hpp`, `moderngekko_run.cpp`):
+
+- Vendor-family fallback on the standard-form GUID: `045E` -> Xbox,
+  `054C` -> PlayStation, `057E` -> Switch, reported as `source=guid-family`.
+  Every Xbox PID now resolves `xbox` whatever PID/firmware/driver it uses.
+- The Nintendo mapping rule requires a Nintendo signal (8BitDo vendor `2DC8`,
+  SDL's `SDL_GAMECONTROLLER_USE_BUTTON_LABELS` hint, or paddles) and never
+  overrides a GUID/Xbox/PlayStation verdict.
+- A button-order D-pad is never read as reversed; only a reversed hat/axis
+  sets `dpad_swap` (the 8BitDo case).
+- The runner now sets Dolphin's own SDL hints (WGI=0, DIRECTINPUT=1,
+  ENHANCED_REPORTS, HIDAPI COMBINE/VERTICAL Joy-Con, PS5 player LED) before it
+  enumerates, so the `Device = SDL/...` line it writes matches the device the
+  runtime creates. Keep that list identical to
+  `InputCommon/ControllerInterface/SDL/SDL.cpp`.
+- Support lines now carry the device and the profile path:
+  `controller configuration: 1 GameCube controller mapped (xbox layout)
+  device="SDL/0/Xbox 360 Controller" profile=...\Config\GCPadNew.ini`, next to
+  the existing `controller: "<name>" guid=... layout=... dpad_swap=...
+  face_swap=...`.
+
+Verification: `moderngekko_controller_layout_test.exe` **130 PASS, 0 FAIL**
+(34-row real-DB matrix, byte-identity lock on the Xbox profile, unknown-PID
+fallback, non-8BitDo `a>b`, button D-pad); `check_regression.py`:
+150/797 rows change behaviour (20 Nintendo pads now correct, 110 wrong Switch
+layouts gone, 34 D-pads fixed). Hidden-desktop boot with a seeded Xbox profile
+and 0 SDL pads leaves the profile byte-identical. Hardware confirmation still
+unavailable on this host (0 SDL gamepads).
+
+Published 2026-11-16 as v0.1.7 (latest):
+<https://github.com/Spaced1127/SpongeBobRecomp/releases/tag/v0.1.7>
+
+| Item | Value |
+|---|---|
+| release commit | `46bc372` (main) |
+| tag | `v0.1.7` |
+| folder | `dist/SpongeBobRecomp-Release-v0.1.7` (2,639 files, 100,993,650 bytes) |
+| zip | `SpongeBobRecomp-v0.1.7-Windows-x64.zip` (28,823,888 bytes) |
+| SHA-256 | `D6660377F5D3B15A38F7BA0E414E990E90C0C23CE954FDD23513D9F5C3E1BC0E` |
+| runner | `263C4AD6D384FB198A833AC567B450C4292068587B01FFFADB9483DEE019BEDB` (15,835,648 bytes) |
+| launcher | `CD03A4DDD8C0F2EAB58CC34DB5ADA950B6598C0E6B89199EDA2BD6D0DCA785F7` |
+| SHA256SUMS.txt | published beside the zip (106 bytes) |
+| game-data scan | 0 hits |
+| download-back hash | identical to the uploaded asset |
+
+Packaged boot smoke (hidden desktop, before the quiet-mode lift):
+`--game work\game --automation-dir <dir>` -> `status.txt` `booted=1`,
+`vps=59.9268`, `speed=1.00033`, raw memory card created. A second run with the
+automation `stop` command exited on its own (clean card flush).
+
+Shared-tree warning: `H:\Projects\Agressive Inline Static Recompile\lib\
+ModernGekko` is a junction to this tree's
+`lib\ModernGekko-Template\lib\ModernGekko`, and that project's session edited
+`controller_layout.hpp` / `moderngekko_run.cpp` during this hotfix (SDL hint
+list, button D-pad rule). Rebuild and re-run the layout test before packaging
+any release built from this tree.
+
+## Memory card fix (2026-11-16)
+
+Shared pattern from Aggressive Inline, applied here. v0.1.0-v0.1.6 never wrote
+`SlotA`, so Dolphin's default `MemoryCardFolder` (8) was used and saves landed
+in `GC/<region>/Card A/*.gci`; `Config/Dolphin.ini` did not exist at all.
+
+- `src/runtime/memcard_bootstrap.cpp` runs after
+  `UICommon::SetUserDirectory` + `UICommon::CreateDirectories` and before
+  `UICommon::Init`, so `GC/USA` and the card exist before
+  `ExpansionInterface::Init`:
+  - slot A = raw 128 Mbit card (`MemoryCardA.<region>.raw`, 16,777,216 bytes),
+    created and formatted on a fresh install (region from the disc ID);
+  - slot B = `None` (255), never `Dummy` (0);
+  - both keys are forced into `Config/Dolphin.ini` (`[Core] SlotA`,
+    `[Core] SlotB`) on every launch, overwriting rather than inserting;
+  - a legacy GCI folder card is imported once into the raw card; the old
+    `.gci` files stay as a backup. If the import fails the runtime keeps the
+    folder device (SlotA=8) so no player starts with an empty card.
+- `dolphin_runtime.cpp` also sets `Config::SetBase(MAIN_SLOT_A/B)` after
+  `UICommon::Init` so no other layer can re-enable the folder device.
+- RecompLauncher manifest: second config block for
+  `{local}/SpongeBobRecomp/Config/Dolphin.ini` with `Core/SlotA = 1` and
+  `Core/SlotB = 255` in `ensure`, `always` and `new`.
+- Startup line: `memory card: slot A = raw, slot B = none, ...` with the file
+  name, byte size or the migration count.
+
+Verified (hidden desktop / headless, this host):
+
+| Case | Result |
+|---|---|
+| fresh user dir | `created MemoryCardA.USA.raw bytes=16777216`, SHA-256 `81DF7FED...00DA`, `GC/USA` + `EUR` + `JAP` exist, `[Core] SlotA = 1 / SlotB = 255` |
+| legacy folder card (`dist/SpongeBobRecomp/UserSave` copy, real `78-GSQE-SpongeBob RFD.gci`) | `migrated 1 save(s)`, card `DA7AA9CA...77B6`, directory entry at `0x4000`: `GSQE78` / company `78` / `SpongeBob RFD` / 4 blocks; `.gci` kept |
+| second launch | card SHA unchanged (`DA7AA9CA...77B6`), no re-import, keys intact |
+| packaged v0.1.7, fresh dir, hidden desktop, 20 s | raw card 16,777,216 bytes, keys written |
+
+Not verified: an in-game `Save Game` -> `Load Game` round trip on the raw card.
+Reaching the game's menu needs scripted input this session did not have; the
+last verified save (v0.1.6, folder device) is the fixture that was migrated, so
+a human can confirm load in one step (Options -> Load Game -> slot A).
+
+Test caveats from the pattern doc apply: savestates restore the EXI device type,
+so a state made while slot A was the GCI folder re-enables the folder device;
+the automation `stop` command must be used instead of a force-kill, because a
+force-kill skips the card flush.
 
 ## Goal
 
@@ -169,16 +497,14 @@ Build tree: `build/moderngekko` (CMake + Ninja + MSVC).
 ## Commands
 
 ```powershell
-# Extract the RVZ
-python tools\rvz_extract.py "<disc>.rvz" work\disc\game.iso
-
-# Inventory
-python tools\gcdisc.py info  work\disc\game.iso
-python tools\gcdisc.py list  work\disc\game.iso
-python tools\gcdisc.py dol   work\disc\game.iso work\disc\dol
+# Inventory and extract directly from ISO or RVZ (no conversion)
+python tools\gcdisc.py info    "<disc>.rvz"
+python tools\gcdisc.py list    "<disc>.rvz"
+python tools\gcdisc.py extract "<disc>.rvz" work\game
+python tools\gcdisc.py dol     "<disc>.rvz" work\disc\dol
 
 # Disassemble the entry point
-python tools\dol_disasm.py work\disc\main.dol 0x80003140 0x80003300
+python tools\dol_disasm.py work\game\sys\main.dol 0x80003140 0x80003300
 
 # Recompile only (already done once)
 build\dolrecomp\dolrecomp.exe --gamecube work\disc\main.dol build\recomp
