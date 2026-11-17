@@ -46,6 +46,25 @@ still doesn't render properly" report.
   still scales to the screen at 16:9, so HUD art is ~1.33x wider. It is
   pixel-correct in Auto/4:3, which adds side bars.
 
+### Controller verification
+
+- Offline: 46 checks - a 23-family class matrix (Xbox 360 USB/Bluetooth, One,
+  One S/Series, Elite, unknown-PID Xbox, DualSense, DualSense Edge, DualShock
+  4/3, a Sony pad reporting STANDARD, generic DirectInput, generic unknown,
+  8BitDo XInput / Ultimate / Pro 2 Nintendo mode / SN30 Pro / Switch-mode clone,
+  Switch Pro and all three Joy-Cons), override precedence in both directions,
+  the canonical profile text, write-once behaviour and legacy key handling.
+- Live on this build: a real Xbox One pad resolves `class=positional`, the
+  Nintendo override flips it to `class=nintendo`, and the profile file is
+  byte-identical in every case (`035B9490…2A83`).
+- The shared input layer is **validated on real hardware**: the same code in
+  WWE WrestleMania X8 Recomp v0.1.4 binds and plays with a physical Xbox pad
+  (user-tested), and SpongeBob v0.1.8 uses it unchanged. PlayStation pads use
+  the same positional class they always did.
+- Still worth confirming on your own pad: A/B/X/Y, both sticks, triggers,
+  shoulders, D-pad, Start. If anything is off, send the single `controller:`
+  startup line - it carries name, GUID, SDL type, class, device and source.
+
 ## Stutter
 
 Measured on this build with the packaged runner:
@@ -72,10 +91,10 @@ Measured on this build with the packaged runner:
 
 ## Download
 
-`SpongeBobRecomp-v0.1.8-Windows-x64.zip` (28,824,025 bytes).
+`SpongeBobRecomp-v0.1.8-Windows-x64.zip` (28,817,632 bytes).
 
 SHA-256:
 
 ```text
-A08000F34C160C865C4C55272E0D75E1DED247E7922D0CE4993A412E1B7C686C  SpongeBobRecomp-v0.1.8-Windows-x64.zip
+1DEB607039EC229DD49A9E3D2E362B1C1DC5DA00ABB0A94F35E2C05BAD00CA07  SpongeBobRecomp-v0.1.8-Windows-x64.zip
 ```

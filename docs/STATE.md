@@ -569,10 +569,13 @@ Live (real Xbox One pad on this host, GUID
 
 In-game: the packaged runner boots with the pad bound and the raw memory card;
 no "configured device missing" line appears because the configured pad is
-present. **Not verified live**: per-button confirmation on physical hardware
-(needs a human pressing buttons), hot-plug (cannot unplug the pad from here),
-and the no-pad-at-boot branch (a pad has been attached since the port; covered
-by the offline test and the earlier no-pad v0.1.7 runs of the profile writer).
+present. **Hardware validation (2026-11-17)**: the shared input layer is proven on real
+hardware - the user tested WWE WrestleMania X8 Recomp v0.1.4 with a physical
+Xbox pad and both binding and buttons work. SpongeBob v0.1.8 ships the same code
+unchanged. Still open here: per-button confirmation on *this* title (one human
+press pass), hot-plug (the pad was never unplugged) and the no-pad-at-boot
+branch (a pad has been attached since the port; covered by the offline test).
+PlayStation pads keep the positional class they have always used.
 
 ## Goal
 
