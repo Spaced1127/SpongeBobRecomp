@@ -306,6 +306,72 @@ layouts gone, 34 D-pads fixed). Hidden-desktop boot with a seeded Xbox profile
 and 0 SDL pads leaves the profile byte-identical. Hardware confirmation still
 unavailable on this host (0 SDL gamepads).
 
+Published 2026-11-17 as v0.1.8 (latest):
+<https://github.com/Spaced1127/SpongeBobRecomp/releases/tag/v0.1.8>
+
+| Item | Value |
+|---|---|
+| release commit | see `gh-release` tag v0.1.8 |
+| folder | `dist/SpongeBobRecomp-Release-v0.1.8` (2,639 files, 100,983,184 bytes) |
+| zip | `SpongeBobRecomp-v0.1.8-Windows-x64.zip` (28,817,632 bytes) |
+| SHA-256 | `1DEB607039EC229DD49A9E3D2E362B1C1DC5DA00ABB0A94F35E2C05BAD00CA07` |
+| runner | `78B93ED523C01B18F4BFD451405C05CE1AEA8C1F31B431FA91DB99505D9925A1` |
+| canonical profile | `035B949038F3A2F8BA86734DA92EB9AB32812856C2E71E40879686EFC99B2A83` |
+| game-data scan | 0 hits |
+
+Packaged boot (visible window, real Xbox One pad): `booted=1`,
+`vps=59.9401`, canonical profile written, raw memory card created, clean
+`stop` shutdown.
+
+## Controller hotfix, Xbox reports (2026-11-16)
+
+Players on v0.1.6 reported Xbox pads not working. The detection/generation walk
+against the vendored SDL DB found no Microsoft row that changed layout: every
+Xbox 360/One/Series/Elite GUID still resolves `xbox` and the generated
+`GCPadNew.ini` is **byte-identical** to the v0.1.5/v0.1.6 profile. What broke
+were two live-mapping heuristics that v0.1.6 applied to **every** pad and to
+pads the GUID table does not cover:
+
+- `a` index > `b` index selected the Switch layout unconditionally, even over a
+  GUID or SDL-type verdict. Of the 797 vendored DB rows, 110 became "Switch"
+  (printed-label A/B and X/Y swapped) — the "USB Gamepad", PS2-adapter, Steam
+  virtual-pad and third-party Xbox-shape rows that Windows and Steam present in
+  place of a plain Xbox pad.
+- `dpleft` index > `dpright` set `dpad_swap` for button-order D-pads that SDL
+  already had right (DualShock 3, PS2 adapters, Steam pads): 34 rows got an
+  inverted D-pad.
+- A Microsoft PID missing from the table (`0B20`, `0B2A`, `0B30`, ...) had no
+  fallback, so it depended on those heuristics.
+
+Fix (`controller_layout.hpp`, `moderngekko_run.cpp`):
+
+- Vendor-family fallback on the standard-form GUID: `045E` -> Xbox,
+  `054C` -> PlayStation, `057E` -> Switch, reported as `source=guid-family`.
+  Every Xbox PID now resolves `xbox` whatever PID/firmware/driver it uses.
+- The Nintendo mapping rule requires a Nintendo signal (8BitDo vendor `2DC8`,
+  SDL's `SDL_GAMECONTROLLER_USE_BUTTON_LABELS` hint, or paddles) and never
+  overrides a GUID/Xbox/PlayStation verdict.
+- A button-order D-pad is never read as reversed; only a reversed hat/axis
+  sets `dpad_swap` (the 8BitDo case).
+- The runner now sets Dolphin's own SDL hints (WGI=0, DIRECTINPUT=1,
+  ENHANCED_REPORTS, HIDAPI COMBINE/VERTICAL Joy-Con, PS5 player LED) before it
+  enumerates, so the `Device = SDL/...` line it writes matches the device the
+  runtime creates. Keep that list identical to
+  `InputCommon/ControllerInterface/SDL/SDL.cpp`.
+- Support lines now carry the device and the profile path:
+  `controller configuration: 1 GameCube controller mapped (xbox layout)
+  device="SDL/0/Xbox 360 Controller" profile=...\Config\GCPadNew.ini`, next to
+  the existing `controller: "<name>" guid=... layout=... dpad_swap=...
+  face_swap=...`.
+
+Verification: `moderngekko_controller_layout_test.exe` **130 PASS, 0 FAIL**
+(34-row real-DB matrix, byte-identity lock on the Xbox profile, unknown-PID
+fallback, non-8BitDo `a>b`, button D-pad); `check_regression.py`:
+150/797 rows change behaviour (20 Nintendo pads now correct, 110 wrong Switch
+layouts gone, 34 D-pads fixed). Hidden-desktop boot with a seeded Xbox profile
+and 0 SDL pads leaves the profile byte-identical. Hardware confirmation still
+unavailable on this host (0 SDL gamepads).
+
 Published 2026-11-16 as v0.1.7 (latest):
 <https://github.com/Spaced1127/SpongeBobRecomp/releases/tag/v0.1.7>
 
@@ -395,6 +461,118 @@ size and SHA-256, and every save directory entry. It is read-only and launches
 nothing. Current fixtures report `slot A = 1`, `slot B = 255`, card
 16,777,216 bytes, entry `GSQE`/`78`/`SpongeBob RFD`/8 blocks, and the legacy
 `.gci` still present.
+
+## Widescreen and frame pacing (2026-11-16)
+
+Player report relayed from the RecompLauncher page (v0.1.3): "stuttering and
+widescreen still doesn't render properly".
+
+### Widescreen: real defect, fixed
+
+The launcher and the RecompLauncher manifest exposed **two independent
+controls**: the aspect ratio (`auto/wide/standard/stretch`) and a "Widescreen
+hack" checkbox. Picking "16:9 widescreen" without ticking the hack renders the
+4:3 image stretched to 16:9 - exactly the report.
+
+Measured with the packaged v0.1.7 runner (visible window, PrintWindow captures
+in `work/evidence` style: `%TEMP%\opencode\ws\shots`):
+
+| Setting | Result |
+|---|---|
+| `standard`, hack off | 4:3 image with side bars; HUD ring 107x116 px (AR 0.92) |
+| `wide`, hack off (the reported case) | full 16:9, 3D stretched: HUD ring 142x116 px (1.33x wider), wall pictures become wide rectangles, SpongeBob squashed |
+| `wide`, hack on | full 16:9, 3D correct (pictures square, SpongeBob normal, more room visible), HUD ring 142x116 |
+| `wide` in `config.ini` with `widescreen_hack=false`, new build | identical to `wide`+hack: log `aspect=1 widescreen=1` |
+
+Fix: the widescreen hack is part of the 16:9 choice.
+- `frontend_config.cpp`: `aspect=wide` forces `widescreen_hack=true` when the
+  config is parsed; the explicit `stretch` mode is how you ask for a plain
+  stretch.
+- `moderngekko_launcher.cpp`: choosing "16:9 widescreen" ticks the hack, and
+  the checkbox is relabelled "Widescreen hack (correct 3D at 16:9)".
+- `recomplauncher.json`: the 16:9 choice sets `aspect=wide` **and**
+  `widescreen_hack=true`; the hack help no longer claims it stretches 3D.
+- Known limitation, documented: the 2D HUD (screen-space overlays) still
+  scales to 16:9, so HUD art is ~1.33x wider at 16:9. `aspect=auto/standard`
+  keeps the HUD pixel-correct with side bars; the 3D view is correct either
+  way.
+
+### Stutter: not reproducible here
+
+Measured with the packaged runner (visible window, automation `status.txt`
+`frame_count`/`speed`, 200 ms resolution):
+
+| Run | Result |
+|---|---|
+| cold (shader cache deleted) | 59.86 fps average, `speed_min` 0.9961, no frame deficit |
+| warm, 25 s walking across the room | 59.97 fps average, 1,493 frames vs 1,492 expected, `speed_min` 1.0000 |
+
+- Shader compilation is not the cause: the runtime already sets
+  `GFX_SHADER_COMPILATION_MODE = AsynchronousUberShaders` with the shader cache
+  on, and the cold-cache run holds 59.9 fps.
+- One real hitch: the START -> bedroom transition (scene load + card access)
+  drops ~11 frames (~190 ms), once per transition.
+- Environmental candidates for the reporter's machine (RTX 4080 / 9800X3D /
+  126 GB, three displays): VRR plus desktop composition, MPO overlays, video
+  playing on another display, or the older v0.1.3 build (before the PGO module
+  and the audio/animation fixes). Nothing in this build's pacing reproduces it.
+
+## Generic controller system (2026-11-17)
+
+Ported from WWE WrestleMania X8 v0.1.4 (`controller-generic-design.md`). The
+per-device tables, launch-time profile generation and migration are gone.
+
+- **One static `GCPadNew.ini`**, written only when missing, never rewritten:
+  canonical SDL positional bindings (`Buttons/A = Button A`, ...).
+- **Two layout classes**: `positional` (default) and `nintendo` (A<->B, X<->Y
+  only; D-pad/sticks/triggers untouched), applied in the input layer by
+  `ciface::SDL::ResolveLayoutButton` at button-read time, so the profile text
+  never changes.
+- **Class resolution** is a pure policy in
+  `vendor/dolphin/.../SDL/LayoutClass.h`: override -> SDL gamepad type ->
+  explicit 8BitDo pair (`2dc8:6006`, `05ac:0004`). No tables, no mapping
+  heuristics.
+- **Override** `controller_class = auto|positional|nintendo` in `config.ini`
+  wins; `--controller-layout` maps onto it (`xbox`/`playstation` ->
+  positional, `switch` -> nintendo). Legacy `controller_profile` and
+  `controller` keys stay parseable and are ignored, never fatal.
+- **Device resolution without the file**: `EnsurePadBound()` binds the first
+  enumerated pad when the configured one is absent (`SetDefaultDevice` +
+  `UpdateReferences`), and a 2 s watcher repeats it, so hot-plug works with no
+  profile write. The existing ModernGekko `DeviceContainer::FindDevice`
+  fallback (exact -> same name -> first SDL pad) stays as the second line of
+  defence.
+- `tools/controller_layout.hpp` and `tools/controller_guid.hpp` are deleted;
+  `GenerateControllerConfig`/`EnsureControllerConfig` and the profile
+  migration helpers are removed from `frontend_config`.
+- One startup line for triage:
+  `controller: name="..." guid=... type=xboxone class=positional override=auto
+  device="SDL/0/..." source=sdl profile=static|written`.
+
+Verified offline (`moderngekko_controller_layout_test`): **46 PASS, 0 FAIL** —
+23-family class matrix (Xbox 360 USB/BT, One, One S/Series, Elite, unknown-PID
+Xbox, DualSense, Edge, DS4, DS3, Sony STANDARD, generic DInput, generic unknown,
+8BitDo XInput/Ultimate/Pro 2 Nintendo/SN30 Pro/Switch clone, Switch Pro and all
+three Joy-Con), override precedence in both directions, canonical profile text,
+write-once and hand-edit preservation, legacy key handling.
+`moderngekko_frontend_config_test` passes.
+
+Live (real Xbox One pad on this host, GUID
+`0300fa675e040000ff02000000007801`, product 0x02ff, SDL type `xboxone`):
+
+| Run | Startup line | Profile |
+|---|---|---|
+| `controller_class=auto` | `class=positional override=auto` | `written`, SHA-256 `035B9490...2A83` |
+| `controller_class=nintendo` | `class=nintendo override=nintendo` | identical SHA |
+| `controller_class=positional` | `class=positional override=positional` | identical SHA |
+| second launch, same dir | `profile=static` | identical SHA |
+
+In-game: the packaged runner boots with the pad bound and the raw memory card;
+no "configured device missing" line appears because the configured pad is
+present. **Not verified live**: per-button confirmation on physical hardware
+(needs a human pressing buttons), hot-plug (cannot unplug the pad from here),
+and the no-pad-at-boot branch (a pad has been attached since the port; covered
+by the offline test and the earlier no-pad v0.1.7 runs of the profile writer).
 
 ## Goal
 

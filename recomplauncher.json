@@ -20,13 +20,20 @@
     ]
   },
   "prepare": {
-    "program": ["SpongeBobRecomp.exe"],
-    "args": ["--extract", "{game}"],
+    "program": [
+      "SpongeBobRecomp.exe"
+    ],
+    "args": [
+      "--extract",
+      "{game}"
+    ],
     "label": "Extracting the game files from your disc",
     "timeout": 1200
   },
   "start": {
-    "program": ["SpongeBobRecompRunner.exe"],
+    "program": [
+      "SpongeBobRecompRunner.exe"
+    ],
     "args": [
       "--module",
       "{install}/gGSQE78_recomp.dll",
@@ -46,7 +53,8 @@
       "ensure": {
         "resolution": "1920x1080",
         "backend": "Vulkan",
-        "efb_access": "true"
+        "efb_access": "true",
+        "controller_class": "auto"
       },
       "always": {
         "efb_access": "true",
@@ -68,7 +76,7 @@
         "volume": "100",
         "emulation_speed": "1",
         "cpu_core": "jit",
-        "controller_profile": "auto"
+        "controller_class": "auto"
       }
     },
     {
@@ -106,48 +114,39 @@
         },
         {
           "label": "Static recomp",
-          "args": ["--core", "static"]
+          "args": [
+            "--core",
+            "static"
+          ]
         }
       ]
     },
     {
-      "id": "controller",
-      "label": "Controller",
-      "help": "Auto detects Xbox, PlayStation, Switch and generic pads, including DualSense Edge and Xbox Elite. Switch uses the printed A/B/X/Y labels.",
+      "id": "controller_class",
+      "label": "Controller layout",
+      "help": "One canonical profile. Positional keeps the Xbox/PlayStation positions; Nintendo swaps A/B and X/Y so printed labels match. Auto picks the class per pad from its SDL type.",
       "choices": [
         {
-          "label": "Auto-detect",
+          "label": "Auto (per pad type)",
           "set": {
-            "controller_profile": "auto"
+            "controller_class": "auto"
           }
         },
         {
-          "label": "Xbox",
+          "label": "Positional (Xbox / PlayStation)",
           "set": {
-            "controller_profile": "xbox"
+            "controller_class": "positional"
           }
         },
         {
-          "label": "PlayStation",
+          "label": "Nintendo (A/B swap)",
           "set": {
-            "controller_profile": "playstation"
-          }
-        },
-        {
-          "label": "Switch",
-          "set": {
-            "controller_profile": "switch"
-          }
-        },
-        {
-          "label": "Generic",
-          "set": {
-            "controller_profile": "generic"
+            "controller_class": "nintendo"
           }
         }
       ],
       "defaults": {
-        "controller_profile": "auto"
+        "controller_class": "auto"
       }
     },
     {
@@ -345,7 +344,7 @@
     {
       "id": "aspect",
       "label": "Aspect ratio",
-      "help": "Auto uses the game's own 4:3 framing. 16:9 widens the view.",
+      "help": "Auto uses the game's own 4:3 framing. 16:9 widens the 3D view and enables the widescreen hack so it is not stretched.",
       "choices": [
         {
           "label": "Auto (4:3)",
@@ -356,7 +355,8 @@
         {
           "label": "16:9",
           "set": {
-            "aspect": "wide"
+            "aspect": "wide",
+            "widescreen_hack": "true"
           }
         },
         {
@@ -379,7 +379,7 @@
     {
       "id": "wide_hack",
       "label": "Widescreen hack",
-      "help": "Stretches 3D to the chosen aspect. The HUD may stretch with it.",
+      "help": "Corrects the 3D width at 16:9; it is switched on automatically when Aspect is 16:9. The 2D HUD still scales to the screen.",
       "choices": [
         {
           "label": "Off",

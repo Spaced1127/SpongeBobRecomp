@@ -1,5 +1,44 @@
 # Changelog
 
+## v0.1.8 - 2026-11-17
+
+Widescreen, frame pacing and the generic controller system.
+
+- **One canonical controller profile.** `Config/GCPadNew.ini` is written once
+  and never rewritten: canonical SDL positional bindings for every pad. The
+  per-device GUID tables, launch-time profile generation, D-pad heuristics and
+  profile migration are deleted.
+- **Two layout classes.** Positional (default) and Nintendo (A<->B and X<->Y
+  only, for pads that print Nintendo labels), resolved per pad from
+  `SDL_GetGamepadType` with one explicit 8BitDo pair fallback and applied in
+  the input layer. D-pad, sticks, triggers and Start are never swapped.
+- **`controller_class=auto|positional|nintendo`** overrides the class;
+  `--controller-layout` maps onto it (`xbox`/`playstation` -> positional,
+  `switch` -> nintendo). Old `controller_profile` keys stay harmless.
+- **First-pad fallback and hot-plug**: if the configured pad is absent the
+  first pad is bound in memory (`SetDefaultDevice` + `UpdateReferences`) and a
+  2 s watcher picks up a pad plugged in later - no profile write, no restart.
+- Startup line for support:
+  `controller: name="..." guid=... type=... class=... override=... device="..." source=... profile=static|written`.
+- Offline: 46 controller checks pass (23-family class matrix, override
+  precedence, profile text, write-once, legacy keys). Live: real Xbox One pad
+  resolves `class=positional`, the Nintendo override flips to `class=nintendo`,
+  and the profile is byte-identical in every case.
+
+- **16:9 now implies the widescreen hack.** The aspect ratio and the
+  "Widescreen hack" control were independent, so picking 16:9 without ticking
+  the hack stretched the 4:3 image (the player-reported "widescreen still
+  doesn't render properly"). `aspect=wide` now forces `widescreen_hack=true`
+  when the config is parsed, the launcher couples the two controls, and the
+  RecompLauncher 16:9 choice sets both. `Stretch` remains the explicit
+  horizontal stretch. The 2D HUD still scales to the screen at 16:9 (known
+  limitation); Auto/4:3 keeps it pixel-correct.
+- **Stutter measured, not reproduced.** Cold shader cache: 59.86 fps,
+  `speed_min` 0.9961, no frame deficit (async ubershaders already enabled).
+  25 s walk: 59.97 fps, 1,493 frames vs 1,492 expected, `speed_min` 1.0000.
+  One ~190 ms hitch on the START -> scene transition. Remaining reports look
+  environmental; the notes ask for the `[video]` line and display setup.
+
 ## v0.1.7 - 2026-11-16
 
 Controller hotfix for the v0.1.6 Xbox reports, plus the shared memory-card fix.

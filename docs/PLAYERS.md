@@ -21,27 +21,41 @@ accepts either format on its setup screen.
 | Emulator menu | Esc | — | — | — | — |
 | Fullscreen | F11 | — | — | — | — |
 
-The runner detects Xbox, PlayStation, Switch and generic SDL pads and applies
-the matching layout even when RecompLauncher starts it directly. Switch uses
-the printed A/B/X/Y labels; Xbox, PlayStation and generic pads use the physical
-positions. You can override the layout on the RecompLauncher game page
-(**Controller**) or in `config.ini` with
-`controller_profile=auto|xbox|playstation|switch|generic`.
-Connect the controller before launching. Two players are supported (port 1 and
-port 2) for the game's multiplayer modes. Touch controls are not part of the PC
-build.
+There is **one controller profile** and it is never rewritten. The runner
+creates it once (`Config\GCPadNew.ini`) and every pad is bound to it, so no pad
+needs to be connected on the first launch and a sleeping wireless pad cannot
+break the next one.
 
-DualSense Edge and Xbox Elite Series 1/2 are detected by their SDL GUID and use
-the standard DualSense/Xbox layout. Their paddles and Fn/extra buttons are
-deliberately not bound: use the face buttons, triggers, sticks and D-pad.
-Any Xbox pad reports `layout=xbox` even when its product ID is newer than the
-built-in table, because the vendor word decides the family.
-8BitDo pads in Nintendo layout are detected from the live SDL mapping, not the
-product name: Pro 2 in Nintendo/Switch mode uses the printed A/B/X/Y labels,
-while Ultimate and 64 stay standard. If a pad maps wrongly, send both startup
-lines: `controller:` (name, GUID, layout, `dpad_swap`, `face_swap`) and
-`controller configuration:` (the `device=` string the runtime looks up plus the
-profile path).
+The profile is always positional (A/B/X/Y in the Xbox/PlayStation positions).
+The **layout class** decides which pads print Nintendo labels and therefore need
+A<->B and X<->Y swapped so the printed label matches the action:
+
+- **Auto** (default) picks the class per pad from its SDL type. Xbox 360 / One /
+  Series / Elite, DualSense, DualSense Edge, DualShock 4/3 and generic pads are
+  positional; Switch Pro and Joy-Cons are Nintendo. 8BitDo pads in Switch mode
+  are recognised by their vendor/product ID (2dc8:6006 and the 05ac:0004 Switch
+  clone); the same pads in XInput mode stay positional.
+- **Positional** and **Nintendo** force one class for every pad if the automatic
+  choice is wrong for you (RecompLauncher page or `controller_class=` in
+  `config.ini`). `--controller-layout` accepts the same values, and the old
+  `standard` / `switch` spellings still work.
+
+Only the face buttons swap. D-pad, sticks, triggers, Start and Z never do, and
+paddles/Fn buttons are deliberately unbound (no GameCube equivalent).
+
+A pad plugged in after launch is picked up within about two seconds; if the
+configured pad is missing the first pad is bound instead. Neither case touches
+the profile file. **Delete `Config\GCPadNew.ini` once if you want the canonical
+profile regenerated** - it is optional (an old generated profile still binds,
+because the runtime resolves the first pad and the class comes from the pad, not
+the file).
+
+If a pad maps wrongly, send the one startup line, which carries everything
+needed to triage it:
+
+```text
+controller: name="..." guid=... type=xboxone class=positional override=auto device="SDL/0/..." source=sdl profile=static
+```
 
 ## Save data
 
