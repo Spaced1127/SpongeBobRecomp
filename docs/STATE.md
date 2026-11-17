@@ -374,6 +374,16 @@ Reaching the game's menu needs scripted input this session did not have; the
 last verified save (v0.1.6, folder device) is the fixture that was migrated, so
 a human can confirm load in one step (Options -> Load Game -> slot A).
 
+In-game check with the packaged v0.1.7 runner (visible window, paused lifted):
+title -> START -> the game enters the bedroom and shows
+"Now accessing the Memory Card in Memory Card Slot A. Do not touch the Memory
+Card or the POWER Button." and continues normally — the raw card in slot A is
+read without the hang or the "device not supported" error that the folder /
+Dummy configurations produce. Evidence:
+`%TEMP%\opencode\savecheck\shots2\02-menu.png` (access banner) and `04/06-*.png`
+(bedroom after access). The pause menu did not open from scripted START during
+the scripted intro, so the actual Save/Load menu was not reached.
+
 Test caveats from the pattern doc apply: savestates restore the EXI device type,
 so a state made while slot A was the GCI folder re-enables the folder device;
 the automation `stop` command must be used instead of a force-kill, because a

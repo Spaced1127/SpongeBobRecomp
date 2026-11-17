@@ -100,9 +100,13 @@ device="SDL/0/Xbox 360 Controller" profile=...\Config\GCPadNew.ini
   launch leaves the card byte-identical.
 - Packaged v0.1.7 runner, hidden desktop: raw card created, keys written,
   `booted=1`, `vps=59.9402`, `speed=1`, clean `stop` shutdown.
+- Packaged v0.1.7 runner, visible window, scripted input: title -> START enters
+  the bedroom and the game reads slot A ("Now accessing the Memory Card in
+  Memory Card Slot A") and continues — no hang, no device error; `fps=59.94`.
 - **Not verified:** an in-game Save -> Load round trip on the raw card. The
-  migrated save is in slot A, so this is one step to confirm
-  (Options -> Load Game -> slot A).
+  pause menu did not open from scripted START during the intro, so the menu
+  was not reached. The migrated save is in slot A, so this is one step to
+  confirm (Options -> Load Game -> slot A).
 - `work/verify-controller/check_regression.py`: 150/797 SDL rows change
   behaviour between v0.1.6 and v0.1.7 (20 Nintendo pads now correct, 110 wrong
   printed-label layouts gone, 34 inverted D-pads fixed).
